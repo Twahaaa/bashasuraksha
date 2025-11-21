@@ -10,6 +10,7 @@
     "generate": "dotenv -e .env -- prisma generate"
   },
   "dependencies": {
+    "@azure/storage-blob": "^12.29.1",
     "@google/genai": "^1.30.0",
     "@prisma/adapter-pg": "^7.0.0",
     "@prisma/client": "^7.0.0",
@@ -17,6 +18,7 @@
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-tabs": "^1.1.13",
     "dotenv": "^17.2.3",
+    "formidable": "^3.5.4",
     "framer-motion": "^12.23.24",
     "lucide-react": "^0.554.0",
     "maplibre-gl": "^5.13.0",

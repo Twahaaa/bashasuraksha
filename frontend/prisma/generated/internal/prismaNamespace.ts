@@ -16,10 +16,10 @@
  */
 
 import * as runtime from "@prisma/client/runtime/client"
-import type * as Prisma from "../models.ts"
-import { type PrismaClient } from "./class.ts"
+import type * as Prisma from "../models.js"
+import { type PrismaClient } from "./class.js"
 
-export type * from '../models.ts'
+export type * from '../models.js'
 
 export type DMMF = typeof runtime.DMMF
 
@@ -673,8 +673,7 @@ export const KnownSampleScalarFieldEnum = {
   language: 'language',
   confidence: 'confidence',
   transcript: 'transcript',
-  lat: 'lat',
-  lng: 'lng',
+  region: 'region',
   keywords: 'keywords',
   createdAt: 'createdAt'
 } as const
@@ -689,8 +688,7 @@ export const UnknownSampleScalarFieldEnum = {
   confidence: 'confidence',
   transcript: 'transcript',
   clusterId: 'clusterId',
-  lat: 'lat',
-  lng: 'lng',
+  region: 'region',
   keywords: 'keywords',
   embedding: 'embedding',
   createdAt: 'createdAt'

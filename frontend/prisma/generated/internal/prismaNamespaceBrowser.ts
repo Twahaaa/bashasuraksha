@@ -17,8 +17,8 @@
 
 import * as runtime from "@prisma/client/runtime/index-browser"
 
-export type * from '../models.ts'
-export type * from './prismaNamespace.ts'
+export type * from '../models.js'
+export type * from './prismaNamespace.js'
 
 export const Decimal = runtime.Decimal
 
@@ -78,8 +78,7 @@ export const KnownSampleScalarFieldEnum = {
   language: 'language',
   confidence: 'confidence',
   transcript: 'transcript',
-  lat: 'lat',
-  lng: 'lng',
+  region: 'region',
   keywords: 'keywords',
   createdAt: 'createdAt'
 } as const
@@ -94,8 +93,7 @@ export const UnknownSampleScalarFieldEnum = {
   confidence: 'confidence',
   transcript: 'transcript',
   clusterId: 'clusterId',
-  lat: 'lat',
-  lng: 'lng',
+  region: 'region',
   keywords: 'keywords',
   embedding: 'embedding',
   createdAt: 'createdAt'
