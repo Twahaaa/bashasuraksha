@@ -6,8 +6,12 @@ on:
     branches: ["main", "dev", "dev-branch-1", "dev-branch-2", "dev-branch-3", "dev-branch-4"]
 
 jobs:
-  build:
+  frontend-build:
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend 
 
     steps:
       - name: Checkout repo
@@ -20,12 +24,12 @@ jobs:
           cache: "npm"
 
       - name: Install deps (clean)
-        run: cd frontend && npm ci
+        run: npm ci
 
       - name: Lint
-        run: cd frontend && npm run lint
+        run: npm run lint
 
       - name: Build Next.js
-        run: cd frontend && npm run build
+        run: npm run build
 
 
