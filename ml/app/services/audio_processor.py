@@ -13,7 +13,7 @@ logger = get_logger(__name__)
 class AudioProcessor:
     def __init__(
         self, 
-        whisper_model="medium", 
+        whisper_model="small", 
         embed_model="facebook/wav2vec2-large-xlsr-53", 
         clustering_eps=5, 
         conf_threshold=0.75,

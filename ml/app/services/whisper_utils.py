@@ -3,7 +3,7 @@ from functools import lru_cache
 from pathlib import Path
 
 @lru_cache()
-def load_whisper_model(model_name="tiny"):
+def load_whisper_model(model_name="small"):
     base_path = Path(__file__).resolve().parent.parent / "models" / "whisper"
     return whisper.load_model(model_name, download_root=str(base_path))
 
