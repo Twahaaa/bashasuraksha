@@ -46,10 +46,22 @@ async function generateKeywords(transcript, lat, long) {
   return text;
 }
 
+export async function getLocationString(lat, long) {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${long}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  const { city, state } = data.address;
+
+  const cityName = city || town || village || "";
+  const stateName = state || "";
+
+  return `${cityName}, ${stateName}`;
+}
 
 export async function saveToDB(data) {
   try {
     const keywords = await generateKeywords(data.transcript, data.lat, data.long);
+    const region = await getLocationString(data.lat, data.long);
     if (data.clusterId !== null && data.clusterId !== undefined) {
       const saved = await prisma.unknownSample.create({
         data: {
@@ -58,8 +70,7 @@ export async function saveToDB(data) {
           confidence: data.confidence,
           transcript: data.transcript ?? null,
           clusterId: data.clusterId,
-          lat: data.lat ?? null,
-          lng: data.long ?? null,
+          region: region,
           keywords: keywords
         },
       });
@@ -78,8 +89,7 @@ export async function saveToDB(data) {
         language: data.language ?? "Unknown",
         confidence: data.confidence,
         transcript: data.transcript ?? null,
-        lat: data.lat ?? null,
-        lng: data.long ?? null,
+        region: region,
         keywords: keywords
       },
     });
