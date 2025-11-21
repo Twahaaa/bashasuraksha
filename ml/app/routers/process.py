@@ -1,38 +1,49 @@
-# ml/app/routers/process.py
-
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter
 from fastapi.responses import JSONResponse
-from app.services.audio_processor import AudioProcessor
-import uuid
+from pydantic import BaseModel
+import tempfile
+import requests
 import os
 
-router = APIRouter()
+from app.services.audio_processor import AudioProcessor
 
-# Create ONE processor instance (efficient)
+router = APIRouter()
 processor = AudioProcessor()
 
+
+class ProcessRequest(BaseModel):
+    file_url: str
+    lat: float | None = None
+    lng: float | None = None
+
+
 @router.post("/process")
-async def process_audio(file: UploadFile = File(...)):
-    """
-    Endpoint for running the full ML pipeline.
-    Saves the audio temporarily, passes to AudioProcessor,
-    returns structured JSON.
-    """
+async def process_audio(data: ProcessRequest):
 
-    # Generate a unique filename
-    temp_filename = f"/tmp/{uuid.uuid4()}.wav"
+    # 1. Download the file from the blob URL
+    response = requests.get(data.file_url)
+    if response.status_code != 200:
+        return JSONResponse(
+            content={"error": "Failed to download audio from blob URL"},
+            status_code=400
+        )
 
-    # Save uploaded file
-    with open(temp_filename, "wb") as f:
-        f.write(await file.read())
+    # 2. Save as temporary file
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
+        tmp.write(response.content)
+        temp_path = tmp.name
 
-    # Run ML pipeline
+    # 3. Process the audio
     try:
-        result = processor.process(temp_filename)
+        result = processor.process(temp_path)
+
+        # Attach lat/lng to result (not used in ML but needed for DB)
+        result["lat"] = data.lat
+        result["lng"] = data.lng
+
         return JSONResponse(content=result)
-    except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500)
+
     finally:
-        # Always clean up temp file
-        if os.path.exists(temp_filename):
-            os.remove(temp_filename)
+        # 4. Cleanup
+        if os.path.exists(temp_path):
+            os.remove(temp_path)

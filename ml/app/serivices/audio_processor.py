@@ -6,7 +6,7 @@ from .preprocess import preprocess_audio
 from .whisper_utils import load_whisper_model, detect_language, transcribe_audio
 from .embeddings import load_embedding_model, extract_embedding
 from .clusturing import cluster_embedding
-
+from .extract_keywords import extract_keywords
 
 class AudioProcessor:
 
@@ -61,10 +61,13 @@ class AudioProcessor:
             cluster_id = cluster_embedding(embedding, self.embeddings_history, eps=self.clustering_eps)
             self.embeddings_history.append(embedding)
 
+        extracted_keywords = extract_keywords(text=transcript)
+
         # Step 6 — Construct JSON response
         return {
             "language": lang,
             "confidence": confidence,
             "transcript": transcript,
             "cluster_id": cluster_id,
+            "extracted_keywords": extract_keywords
         }
