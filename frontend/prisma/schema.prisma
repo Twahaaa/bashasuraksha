@@ -21,6 +21,7 @@ model KnownSample {
   transcript  String?
   lat         Float?
   lng         Float?
+  keywords    String
   createdAt   DateTime @default(now())
 }
 
@@ -33,6 +34,7 @@ model UnknownSample {
   clusterId   Int?
   lat         Float?
   lng         Float?
+  keywords    String
   embedding   Json
   createdAt   DateTime @default(now())
 

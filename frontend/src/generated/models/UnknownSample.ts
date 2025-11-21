@@ -51,6 +51,7 @@ export type UnknownSampleMinAggregateOutputType = {
   clusterId: number | null
   lat: number | null
   lng: number | null
+  keywords: string | null
   createdAt: Date | null
 }
 
@@ -63,6 +64,7 @@ export type UnknownSampleMaxAggregateOutputType = {
   clusterId: number | null
   lat: number | null
   lng: number | null
+  keywords: string | null
   createdAt: Date | null
 }
 
@@ -75,6 +77,7 @@ export type UnknownSampleCountAggregateOutputType = {
   clusterId: number
   lat: number
   lng: number
+  keywords: number
   embedding: number
   createdAt: number
   _all: number
@@ -106,6 +109,7 @@ export type UnknownSampleMinAggregateInputType = {
   clusterId?: true
   lat?: true
   lng?: true
+  keywords?: true
   createdAt?: true
 }
 
@@ -118,6 +122,7 @@ export type UnknownSampleMaxAggregateInputType = {
   clusterId?: true
   lat?: true
   lng?: true
+  keywords?: true
   createdAt?: true
 }
 
@@ -130,6 +135,7 @@ export type UnknownSampleCountAggregateInputType = {
   clusterId?: true
   lat?: true
   lng?: true
+  keywords?: true
   embedding?: true
   createdAt?: true
   _all?: true
@@ -230,6 +236,7 @@ export type UnknownSampleGroupByOutputType = {
   clusterId: number | null
   lat: number | null
   lng: number | null
+  keywords: string
   embedding: runtime.JsonValue
   createdAt: Date
   _count: UnknownSampleCountAggregateOutputType | null
@@ -266,6 +273,7 @@ export type UnknownSampleWhereInput = {
   clusterId?: Prisma.IntNullableFilter<"UnknownSample"> | number | null
   lat?: Prisma.FloatNullableFilter<"UnknownSample"> | number | null
   lng?: Prisma.FloatNullableFilter<"UnknownSample"> | number | null
+  keywords?: Prisma.StringFilter<"UnknownSample"> | string
   embedding?: Prisma.JsonFilter<"UnknownSample">
   createdAt?: Prisma.DateTimeFilter<"UnknownSample"> | Date | string
   cluster?: Prisma.XOR<Prisma.ClusterNullableScalarRelationFilter, Prisma.ClusterWhereInput> | null
@@ -280,6 +288,7 @@ export type UnknownSampleOrderByWithRelationInput = {
   clusterId?: Prisma.SortOrderInput | Prisma.SortOrder
   lat?: Prisma.SortOrderInput | Prisma.SortOrder
   lng?: Prisma.SortOrderInput | Prisma.SortOrder
+  keywords?: Prisma.SortOrder
   embedding?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   cluster?: Prisma.ClusterOrderByWithRelationInput
@@ -297,6 +306,7 @@ export type UnknownSampleWhereUniqueInput = Prisma.AtLeast<{
   clusterId?: Prisma.IntNullableFilter<"UnknownSample"> | number | null
   lat?: Prisma.FloatNullableFilter<"UnknownSample"> | number | null
   lng?: Prisma.FloatNullableFilter<"UnknownSample"> | number | null
+  keywords?: Prisma.StringFilter<"UnknownSample"> | string
   embedding?: Prisma.JsonFilter<"UnknownSample">
   createdAt?: Prisma.DateTimeFilter<"UnknownSample"> | Date | string
   cluster?: Prisma.XOR<Prisma.ClusterNullableScalarRelationFilter, Prisma.ClusterWhereInput> | null
@@ -311,6 +321,7 @@ export type UnknownSampleOrderByWithAggregationInput = {
   clusterId?: Prisma.SortOrderInput | Prisma.SortOrder
   lat?: Prisma.SortOrderInput | Prisma.SortOrder
   lng?: Prisma.SortOrderInput | Prisma.SortOrder
+  keywords?: Prisma.SortOrder
   embedding?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.UnknownSampleCountOrderByAggregateInput
@@ -332,6 +343,7 @@ export type UnknownSampleScalarWhereWithAggregatesInput = {
   clusterId?: Prisma.IntNullableWithAggregatesFilter<"UnknownSample"> | number | null
   lat?: Prisma.FloatNullableWithAggregatesFilter<"UnknownSample"> | number | null
   lng?: Prisma.FloatNullableWithAggregatesFilter<"UnknownSample"> | number | null
+  keywords?: Prisma.StringWithAggregatesFilter<"UnknownSample"> | string
   embedding?: Prisma.JsonWithAggregatesFilter<"UnknownSample">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"UnknownSample"> | Date | string
 }
@@ -343,6 +355,7 @@ export type UnknownSampleCreateInput = {
   transcript?: string | null
   lat?: number | null
   lng?: number | null
+  keywords: string
   embedding: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   cluster?: Prisma.ClusterCreateNestedOneWithoutSamplesInput
@@ -357,6 +370,7 @@ export type UnknownSampleUncheckedCreateInput = {
   clusterId?: number | null
   lat?: number | null
   lng?: number | null
+  keywords: string
   embedding: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
@@ -368,6 +382,7 @@ export type UnknownSampleUpdateInput = {
   transcript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  keywords?: Prisma.StringFieldUpdateOperationsInput | string
   embedding?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cluster?: Prisma.ClusterUpdateOneWithoutSamplesNestedInput
@@ -382,6 +397,7 @@ export type UnknownSampleUncheckedUpdateInput = {
   clusterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  keywords?: Prisma.StringFieldUpdateOperationsInput | string
   embedding?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -395,6 +411,7 @@ export type UnknownSampleCreateManyInput = {
   clusterId?: number | null
   lat?: number | null
   lng?: number | null
+  keywords: string
   embedding: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
@@ -406,6 +423,7 @@ export type UnknownSampleUpdateManyMutationInput = {
   transcript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  keywords?: Prisma.StringFieldUpdateOperationsInput | string
   embedding?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -419,6 +437,7 @@ export type UnknownSampleUncheckedUpdateManyInput = {
   clusterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  keywords?: Prisma.StringFieldUpdateOperationsInput | string
   embedding?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -432,6 +451,7 @@ export type UnknownSampleCountOrderByAggregateInput = {
   clusterId?: Prisma.SortOrder
   lat?: Prisma.SortOrder
   lng?: Prisma.SortOrder
+  keywords?: Prisma.SortOrder
   embedding?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -453,6 +473,7 @@ export type UnknownSampleMaxOrderByAggregateInput = {
   clusterId?: Prisma.SortOrder
   lat?: Prisma.SortOrder
   lng?: Prisma.SortOrder
+  keywords?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -465,6 +486,7 @@ export type UnknownSampleMinOrderByAggregateInput = {
   clusterId?: Prisma.SortOrder
   lat?: Prisma.SortOrder
   lng?: Prisma.SortOrder
+  keywords?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -543,6 +565,7 @@ export type UnknownSampleCreateWithoutClusterInput = {
   transcript?: string | null
   lat?: number | null
   lng?: number | null
+  keywords: string
   embedding: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
@@ -555,6 +578,7 @@ export type UnknownSampleUncheckedCreateWithoutClusterInput = {
   transcript?: string | null
   lat?: number | null
   lng?: number | null
+  keywords: string
   embedding: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
@@ -597,6 +621,7 @@ export type UnknownSampleScalarWhereInput = {
   clusterId?: Prisma.IntNullableFilter<"UnknownSample"> | number | null
   lat?: Prisma.FloatNullableFilter<"UnknownSample"> | number | null
   lng?: Prisma.FloatNullableFilter<"UnknownSample"> | number | null
+  keywords?: Prisma.StringFilter<"UnknownSample"> | string
   embedding?: Prisma.JsonFilter<"UnknownSample">
   createdAt?: Prisma.DateTimeFilter<"UnknownSample"> | Date | string
 }
@@ -609,6 +634,7 @@ export type UnknownSampleCreateManyClusterInput = {
   transcript?: string | null
   lat?: number | null
   lng?: number | null
+  keywords: string
   embedding: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
@@ -620,6 +646,7 @@ export type UnknownSampleUpdateWithoutClusterInput = {
   transcript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  keywords?: Prisma.StringFieldUpdateOperationsInput | string
   embedding?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -632,6 +659,7 @@ export type UnknownSampleUncheckedUpdateWithoutClusterInput = {
   transcript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  keywords?: Prisma.StringFieldUpdateOperationsInput | string
   embedding?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -644,6 +672,7 @@ export type UnknownSampleUncheckedUpdateManyWithoutClusterInput = {
   transcript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  keywords?: Prisma.StringFieldUpdateOperationsInput | string
   embedding?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -659,6 +688,7 @@ export type UnknownSampleSelect<ExtArgs extends runtime.Types.Extensions.Interna
   clusterId?: boolean
   lat?: boolean
   lng?: boolean
+  keywords?: boolean
   embedding?: boolean
   createdAt?: boolean
   cluster?: boolean | Prisma.UnknownSample$clusterArgs<ExtArgs>
@@ -673,6 +703,7 @@ export type UnknownSampleSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   clusterId?: boolean
   lat?: boolean
   lng?: boolean
+  keywords?: boolean
   embedding?: boolean
   createdAt?: boolean
   cluster?: boolean | Prisma.UnknownSample$clusterArgs<ExtArgs>
@@ -687,6 +718,7 @@ export type UnknownSampleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   clusterId?: boolean
   lat?: boolean
   lng?: boolean
+  keywords?: boolean
   embedding?: boolean
   createdAt?: boolean
   cluster?: boolean | Prisma.UnknownSample$clusterArgs<ExtArgs>
@@ -701,11 +733,12 @@ export type UnknownSampleSelectScalar = {
   clusterId?: boolean
   lat?: boolean
   lng?: boolean
+  keywords?: boolean
   embedding?: boolean
   createdAt?: boolean
 }
 
-export type UnknownSampleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fileUrl" | "languageGuess" | "confidence" | "transcript" | "clusterId" | "lat" | "lng" | "embedding" | "createdAt", ExtArgs["result"]["unknownSample"]>
+export type UnknownSampleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fileUrl" | "languageGuess" | "confidence" | "transcript" | "clusterId" | "lat" | "lng" | "keywords" | "embedding" | "createdAt", ExtArgs["result"]["unknownSample"]>
 export type UnknownSampleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   cluster?: boolean | Prisma.UnknownSample$clusterArgs<ExtArgs>
 }
@@ -730,6 +763,7 @@ export type $UnknownSamplePayload<ExtArgs extends runtime.Types.Extensions.Inter
     clusterId: number | null
     lat: number | null
     lng: number | null
+    keywords: string
     embedding: runtime.JsonValue
     createdAt: Date
   }, ExtArgs["result"]["unknownSample"]>
@@ -1164,6 +1198,7 @@ export interface UnknownSampleFieldRefs {
   readonly clusterId: Prisma.FieldRef<"UnknownSample", 'Int'>
   readonly lat: Prisma.FieldRef<"UnknownSample", 'Float'>
   readonly lng: Prisma.FieldRef<"UnknownSample", 'Float'>
+  readonly keywords: Prisma.FieldRef<"UnknownSample", 'String'>
   readonly embedding: Prisma.FieldRef<"UnknownSample", 'Json'>
   readonly createdAt: Prisma.FieldRef<"UnknownSample", 'DateTime'>
 }
