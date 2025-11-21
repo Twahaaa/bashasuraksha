@@ -1,6 +1,6 @@
 "use server";
 
-import prisma from "@/lib/prisma";
+import prisma from "../src/lib/prisma";
 import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -40,7 +40,10 @@ async function generateKeywords(transcript, lat, long) {
     contents: prompt,
   });
 
-  return result.response.text();
+  const text =
+    result?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+  return text;
 }
 
 
@@ -56,7 +59,7 @@ export async function saveToDB(data) {
           transcript: data.transcript ?? null,
           clusterId: data.clusterId,
           lat: data.lat ?? null,
-          lng: data.lng ?? null,
+          lng: data.long ?? null,
           keywords: keywords
         },
       });
@@ -76,7 +79,7 @@ export async function saveToDB(data) {
         confidence: data.confidence,
         transcript: data.transcript ?? null,
         lat: data.lat ?? null,
-        lng: data.lng ?? null,
+        lng: data.long ?? null,
         keywords: keywords
       },
     });
