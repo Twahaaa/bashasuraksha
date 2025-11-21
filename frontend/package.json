@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "generate": "dotenv -e .env -- prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^7.0.0",
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "dotenv-cli": "^8.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.0.3",
     "prisma": "^7.0.0",

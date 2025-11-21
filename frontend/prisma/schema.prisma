@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model KnownSample {
+  id          Int      @id @default(autoincrement())
+  fileUrl     String
+  language    String
+  confidence  Float
+  transcript  String?
+  lat         Float?
+  lng         Float?
+  createdAt   DateTime @default(now())
+}
+
+model UnknownSample {
+  id          Int      @id @default(autoincrement())
+  fileUrl     String
+  languageGuess String?
+  confidence  Float
+  transcript  String?
+  clusterId   Int?
+  lat         Float?
+  lng         Float?
+  embedding   Json
+  createdAt   DateTime @default(now())
+
+  cluster     Cluster? @relation(fields: [clusterId], references: [id])
+}
+
+model Cluster {
+  id           Int      @id @default(autoincrement())
+  centroid     Json?    
+  sampleCount  Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  samples      UnknownSample[]
+}
