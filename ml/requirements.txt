@@ -1,25 +1,28 @@
-
+# API
 fastapi
 uvicorn[standard]
 
+# Audio Processing
 librosa
 soundfile
 ffmpeg-python
 
-torch             
-transformers
-numpy
+# ML Core
+torch==2.2.2
+transformers==4.37.2
+numpy<2
 scikit-learn
 
+# Whisper
 git+https://github.com/openai/whisper.git
 
+# HuggingFace utilities
 sentencepiece
 huggingface-hub
 
-python-dotenv    
-
-google-genai
+# Networking
 requests
 
+# Testing
 pytest
 pytest-asyncio

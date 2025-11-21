@@ -1,0 +1,28 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+venv
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git
+.gitignore
+.pytest_cache
+pytest.ini
+.env
+
+# Exclude models directory to keep image small
+# Models should be mounted or downloaded at runtime
+app/models
+app/tests/sample_audio

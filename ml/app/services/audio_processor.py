@@ -8,7 +8,6 @@ from .embeddings import load_embedding_model, extract_embedding
 from .clustering import cluster_embedding
 
 class AudioProcessor:
-
     def __init__(self, whisper_model="tiny", embed_model="facebook/wav2vec2-large-xlsr-53", clustering_eps=5, conf_threshold=0.75):
         
         self.whisper = load_whisper_model(whisper_model)

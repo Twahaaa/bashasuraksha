@@ -7,7 +7,7 @@ SAMPLE_RATE = 16000
 
 def load_embedding_model(model_name="facebook/wav2vec2-large-xlsr-53"):
     # Get absolute path to models directory
-    base_path = Path(__file__).resolve().parent.parent / "models" / "indicwav2vec"
+    base_path = Path(__file__).resolve().parent.parent / "models" / "wav2vec2"
     
     feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(
         model_name,
