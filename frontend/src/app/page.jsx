@@ -1,313 +1,361 @@
 "use client"
+
 import { useState } from "react"
-import { Sparkles, Users, Lightbulb, ArrowRight, Plus, Shield, Globe, Lock } from "lucide-react"
+import {
+  Shield,
+  Mic,
+  Activity,
+  Network,
+  FileText,
+  Database,
+  Map as MapIcon,
+  ChevronDown,
+  Cpu
+} from "lucide-react"
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useSpring,
+  AnimatePresence
+} from "framer-motion";
 
-// --- Modern Abstract Background Component ---
-const ModernBackground = () => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none">
-    <div className="w-full h-full absolute bg-gradient-to-b from-neutral-900 via-neutral-950 to-black">
-      <style>
-        {`
-                .flow-line {
-                    position: absolute;
-                    border: 1px solid;
-                    border-radius: 50%;
-                    opacity: 0.1;
-                    animation: float 25s ease-in-out infinite;
-                }
+import Link from "next/link";
+const COLORS = {
+  yellow: "#FACC15",
+  yellowDim: "#CA8A04", 
+  bg: "#050505",
+  text: "#E5E5E5",
+  textDim: "#737373"
+}
 
-                .flow-line-1 {
-                    width: 600px;
-                    height: 600px;
-                    top: -10%;
-                    right: -5%;
-                    border-color: #FACC15; /* Yellow-400 */
-                    animation-delay: 0s;
-                }
-
-                .flow-line-2 {
-                    width: 800px;
-                    height: 800px;
-                    top: 30%;
-                    left: -10%;
-                    border-color: #737373; /* Neutral-500 */
-                    animation-delay: -5s;
-                }
-
-                @keyframes float {
-                    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-                    50% { transform: translate(20px, 20px) rotate(5deg); }
-                }
-
-                .gold-glow {
-                    position: absolute;
-                    width: 800px;
-                    height: 800px;
-                    background: radial-gradient(circle, rgba(234, 179, 8, 0.15) 0%, rgba(82, 82, 82, 0.05) 40%, rgba(0,0,0,0) 70%);
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    pointer-events: none;
-                }
-            `}
-      </style>
-      <div className="gold-glow"></div>
-      <div className="flow-line flow-line-1"></div>
-      <div className="flow-line flow-line-2"></div>
-    </div>
-  </div>
-)
-
-// --- FAQ Data ---
-const faqs = [
-  {
-    id: 1,
-    question: "What kind of data does BhashaSuraksha analyze?",
-    answer:
-      "BhashaSuraksha processes and analyzes large-scale linguistic data (text, speech transcripts) to identify security risks, safety violations, and communication anomalies.",
-  },
-  {
-    id: 2,
-    question: "How does the Risk HeatMap work?",
-    answer:
-      "The HeatMap visually represents areas of high linguistic risk, allowing users to instantly identify problematic communication channels, geographical regions, or time periods requiring immediate attention.",
-  },
-  {
-    id: 3,
-    question: "Is BhashaSuraksha compliant with data privacy regulations?",
-    answer:
-      "Yes, we prioritize privacy. All linguistic data is processed anonymously and securely, ensuring compliance with major global data protection standards like GDPR and CCPA.",
-  },
-  {
-    id: 4,
-    question: "Can I integrate BhashaSuraksha into my existing app?",
-    answer:
-      "Absolutely. We offer flexible API endpoints for seamless integration, allowing you to incorporate real-time linguistic safety checks into any web, mobile, or enterprise application.",
-  },
+const STEPS = [
+  { icon: Mic, title: "Record", desc: "User speaks 5-10 seconds in any language." },
+  { icon: Activity, title: "Detect", desc: "AI identifies language or marks as 'unknown dialect'." },
+  { icon: Network, title: "Cluster", desc: "Similar unknown dialects grouped automatically." },
+  { icon: FileText, title: "Transcribe", desc: "Convert speech to text + extract cultural keywords." },
+  { icon: Database, title: "Archive", desc: "Store audio + metadata in digital repository." },
+  { icon: MapIcon, title: "Visualize", desc: "Interactive map shows linguistic diversity across India." },
 ]
 
-// --- FAQ Item Component ---
-const FAQItem = ({ question, answer }) => {
-  const [isOpen, setIsOpen] = useState(false)
+const FAQS = [
+  { q: "What is the core mission?", a: "To create a permanent digital archive of India's 196 endangered languages using voice-first technology." },
+  { q: "How does the AI work?", a: "It uses unsupervised clustering to group similar speech patterns without needing pre-labeled training data." },
+  { q: "Is the data public?", a: "The visualized map is public, but raw audio data is anonymized and securely archived." },
+]
 
+
+const Reveal = ({ children, delay = 0 }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 40 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: "-100px" }}
+    transition={{ duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] }}
+  >
+    {children}
+  </motion.div>
+)
+
+const TextReveal = ({ text, className }) => {
+  const words = text.split(" ")
   return (
-    <div className="group border-b border-neutral-800 hover:border-yellow-600/50 transition-all duration-300 bg-gradient-to-r from-transparent via-transparent to-transparent hover:via-yellow-900/5">
-      <button className="flex justify-between items-center w-full py-6 text-left" onClick={() => setIsOpen(!isOpen)}>
-        <span
-          className={`text-lg font-medium transition-colors duration-300 ${isOpen ? "text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600" : "text-neutral-200 group-hover:text-yellow-500"}`}
+    <div className={`overflow-hidden ${className}`}>
+      {words.map((word, i) => (
+        <motion.span
+          key={i}
+          initial={{ y: "100%" }}
+          whileInView={{ y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: i * 0.05, ease: "easeOut" }}
+          className="inline-block mr-2"
         >
-          {question}
-        </span>
-        <Plus
-          className={`w-5 h-5 flex-shrink-0 transform transition-transform duration-300 ${isOpen ? "rotate-45 text-yellow-500" : "rotate-0 text-neutral-500"}`}
-        />
-      </button>
-      <div
-        className={`overflow-hidden transition-all duration-500 ease-in-out ${
-          isOpen ? "max-h-48 opacity-100 pb-6" : "max-h-0 opacity-0"
-        }`}
-      >
-        <p className="text-neutral-400 leading-relaxed pr-8">{answer}</p>
-      </div>
+          {word}
+        </motion.span>
+      ))}
     </div>
   )
 }
 
-// --- FAQ Section Component ---
-const FAQSection = () => (
-  <section className="py-32 px-6 relative" id="about">
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-16">
-        <h2 className="text-4xl md:text-5xl font-serif font-bold text-white mb-6">
-          Frequently Asked{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-700">
-            Questions
-          </span>
-        </h2>
-        <p className="text-xl text-neutral-400">Everything you need to know about our security protocols.</p>
-      </div>
-
-      <div className="space-y-2">
-        {faqs.map((faq) => (
-          <FAQItem key={faq.id} question={faq.question} answer={faq.answer} />
-        ))}
-      </div>
-    </div>
-  </section>
+const BackgroundGrid = () => (
+  <div className="fixed inset-0 z-0 pointer-events-none opacity-20">
+    <div
+      className="absolute inset-0"
+      style={{
+        backgroundImage: `linear-gradient(${COLORS.textDim} 1px, transparent 1px), linear-gradient(90deg, ${COLORS.textDim} 1px, transparent 1px)`,
+        backgroundSize: '60px 60px',
+        opacity: 0.1
+      }}
+    />
+    <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black" />
+  </div>
 )
 
-// --- Main App Component ---
-export default function Page() {
+const ScrollProgress = () => {
+  const { scrollYProgress } = useScroll()
+  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 })
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-neutral-900 to-black text-neutral-200 selection:bg-yellow-500/30 selection:text-yellow-200 font-serif">
-      {/* Modern Background */}
-      <div className="fixed inset-0 -z-10">
-        <ModernBackground />
+    <motion.div
+      className="fixed top-0 left-0 right-0 h-1 bg-yellow-500 origin-left z-50"
+      style={{ scaleX }}
+    />
+  )
+}
+
+const StepCard = ({ step, index }) => {
+  const Icon = step.icon
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.6, delay: index * 0.1 }}
+      className="group relative flex flex-col p-8 border border-neutral-800 hover:border-yellow-500/50 bg-neutral-900/50 backdrop-blur-sm transition-colors duration-500"
+    >
+      <div className="absolute top-4 right-4 text-neutral-800 font-mono text-4xl font-bold group-hover:text-yellow-500/10 transition-colors">
+        0{index + 1}
       </div>
+      <div className="mb-6 p-3 w-fit rounded bg-neutral-800 group-hover:bg-yellow-500 transition-colors duration-300">
+        <Icon className="w-6 h-6 text-neutral-400 group-hover:text-black transition-colors duration-300" />
+      </div>
+      <h3 className="text-xl font-bold text-neutral-200 mb-3 group-hover:text-yellow-400 transition-colors">{step.title}</h3>
+      <p className="text-neutral-400 leading-relaxed">{step.desc}</p>
+    </motion.div>
+  )
+}
 
-      {/* Main Content Container */}
-      <div className="relative flex flex-col min-h-screen z-10">
-        {/* Hero Section */}
-        <section className="flex-1 flex items-center justify-center px-6 pt-20 pb-20">
-          <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-            {/* Left Column - Content */}
-            <div className="lg:col-span-7 space-y-10">
-              {/* Brand Mark (Replacing Navbar) */}
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 via-yellow-500 to-yellow-700 rounded-sm flex items-center justify-center shadow-lg shadow-yellow-500/20">
-                  <Shield className="w-6 h-6 text-black" />
-                </div>
-                <span className="text-xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white to-neutral-400 uppercase">
-                  BhashaSuraksha
-                </span>
+
+export default function BhashaSuraksha() {
+  const { scrollY } = useScroll()
+  const y1 = useTransform(scrollY, [0, 500], [0, 200])
+  const y2 = useTransform(scrollY, [0, 500], [0, -150])
+
+  return (
+    <div className="min-h-screen bg-black text-neutral-200 font-sans selection:bg-yellow-500/30 selection:text-yellow-200 overflow-x-hidden">
+      <ScrollProgress />
+      <BackgroundGrid />
+
+      <header className="fixed top-0 w-full z-40 px-6 py-6 mix-blend-difference">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <Shield className="w-6 h-6 text-yellow-500" />
+            <span className="font-bold tracking-widest text-sm uppercase text-white">BhashaSuraksha</span>
+          </div>
+        </div>
+      </header>
+
+      <section className="relative min-h-screen flex items-center justify-center px-6 pt-20">
+        <div className="max-w-5xl mx-auto z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+
+          <div className="lg:col-span-8 space-y-8">
+            <Reveal>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="h-[1px] w-12 bg-yellow-500 inline-block"></span>
+                <span className="text-yellow-500 font-mono text-sm tracking-widest uppercase">Project Bharat</span>
               </div>
+            </Reveal>
 
-              {/* Main Headline */}
-              <div className="space-y-6">
-                <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold leading-[0.9] tracking-tight text-white">
-                  Secure your <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-700">
-                    Digital Voice.
-                  </span>
-                </h1>
-
-                <p className="text-xl md:text-2xl text-neutral-400 leading-relaxed max-w-xl border-l-2 border-yellow-600/30 pl-6 font-sans">
-                  Advanced linguistic data analysis for real-time threat detection and communication security.
-                </p>
-              </div>
-
-              {/* Search Bar */}
-              <div className="relative max-w-lg group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-600 to-neutral-600 rounded-lg blur opacity-30 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
-                <div className="relative flex items-center bg-neutral-900/80 backdrop-blur-sm rounded-lg p-2 border border-neutral-800">
-                  <input
-                    type="text"
-                    placeholder="Analyze a text stream..."
-                    className="w-full px-4 py-3 bg-transparent text-white placeholder-neutral-500 focus:outline-none text-lg"
-                  />
-                  <button className="p-3 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-black rounded-md transition-all duration-200 shadow-lg shadow-yellow-500/20">
-                    <ArrowRight className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* CTA Buttons */}
-              <div className="flex flex-wrap gap-6 pt-4">
-                <button className="px-8 py-4 bg-gradient-to-r from-neutral-100 to-neutral-300 hover:from-white hover:to-neutral-200 text-black rounded-sm font-bold text-sm tracking-widest uppercase transition-all duration-200 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-                  Start Free Trial
-                </button>
-
-                <button className="px-8 py-4 bg-transparent border border-neutral-700 hover:border-yellow-500/50 text-neutral-300 hover:text-yellow-400 rounded-sm font-bold text-sm tracking-widest uppercase transition-all duration-200 hover:bg-yellow-500/5">
-                  View Documentation
-                </button>
-              </div>
+            <div className="space-y-2">
+              <TextReveal
+                text="Preserving India's"
+                className="text-5xl md:text-7xl font-bold text-white tracking-tight"
+              />
+              <TextReveal
+                text="196 Endangered Languages"
+                className="text-5xl md:text-7xl font-bold text-yellow-400 tracking-tight"
+              />
             </div>
 
-            {/* Right Column - Visual Element */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative z-10 bg-neutral-900/40 backdrop-blur-xl border border-white/10 p-8 rounded-xl shadow-2xl">
-                <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-6">
-                  <div>
-                    <h3 className="text-2xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-neutral-400">
-                      Live Analysis
-                    </h3>
-                    <p className="text-yellow-500 text-sm font-medium mt-1">System Active</p>
-                  </div>
-                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
-                </div>
+            <Reveal delay={0.4}>
+              <p className="text-xl text-neutral-400 max-w-2xl leading-relaxed">
+                An AI-powered platform leveraging crowdsourced voice recordings to create a permanent digital archive of our linguistic heritage.
+              </p>
+            </Reveal>
 
-                <div className="space-y-6">
-                  {[
-                    { label: "Threat Detection", value: "99.9%", icon: Shield },
-                    { label: "Global Coverage", value: "142 Regions", icon: Globe },
-                    { label: "Encryption", value: "End-to-End", icon: Lock },
-                  ].map((stat, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-4 p-4 bg-neutral-950/50 rounded-lg border border-white/5 hover:border-yellow-500/30 transition-colors group"
-                    >
-                      <div className="p-3 bg-neutral-900 rounded-md text-yellow-500 group-hover:text-yellow-400 transition-colors">
-                        <stat.icon className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="text-neutral-500 text-xs uppercase tracking-wider">{stat.label}</p>
-                        <p className="text-white font-bold text-lg">{stat.value}</p>
-                      </div>
+            <Reveal delay={0.6}>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="group relative overflow-hidden bg-yellow-500 px-8 py-4 mt-4"
+              >
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out" />
+                <div className="relative flex items-center gap-3 text-black font-bold tracking-wide uppercase text-sm">
+                  <Mic className="w-4 h-4" />
+                  <Link href="/home"><span>Record Voice Sample</span></Link>
+                  
+                </div>
+              </motion.button>
+            </Reveal>
+          </div>
+
+          <div className="lg:col-span-4 relative hidden lg:block">
+            <motion.div style={{ y: y2 }} className="absolute right-0 top-0 w-64 h-96 border border-neutral-800 bg-neutral-900/50 backdrop-blur-sm z-0" />
+            <motion.div style={{ y: y1 }} className="relative z-10 border border-yellow-500/30 p-8 bg-black">
+              <div className="space-y-6">
+                {[1, 2, 3].map((_, i) => (
+                  <div key={i} className="flex items-center gap-4 opacity-50">
+                    <div className="w-full h-1 bg-neutral-800 rounded overflow-hidden">
+                      <motion.div
+                        initial={{ width: "0%" }}
+                        animate={{ width: ["0%", "60%", "40%", "80%"] }}
+                        transition={{ duration: 4, repeat: Infinity, delay: i * 1 }}
+                        className="h-full bg-yellow-500"
+                      />
                     </div>
+                  </div>
+                ))}
+                <div className="pt-4 border-t border-neutral-800">
+                  <p className="font-mono text-xs text-yellow-500">STATUS: LISTENING</p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        <motion.div
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 text-neutral-500"
+        >
+          <ChevronDown className="w-6 h-6" />
+        </motion.div>
+      </section>
+
+      <section className="py-32 px-6 relative border-t border-neutral-900">
+        <div className="max-w-7xl mx-auto">
+          <Reveal>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-16 flex items-center gap-4">
+              <span className="w-8 h-8 border border-yellow-500 flex items-center justify-center text-yellow-500 text-sm font-mono">01</span>
+              System Architecture
+            </h2>
+          </Reveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-neutral-800 border border-neutral-800">
+            {STEPS.map((step, index) => (
+              <StepCard key={index} step={step} index={index} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-32 px-6 bg-neutral-900 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10 pointer-events-none">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-neutral-500 via-transparent to-transparent" />
+        </div>
+
+        <div className="max-w-5xl mx-auto relative z-10">
+          <div className="flex flex-col md:flex-row items-center gap-12">
+            <div className="flex-1 space-y-8">
+              <Reveal>
+                <div className="inline-flex items-center gap-2 px-3 py-1 border border-yellow-500/30 rounded-full text-yellow-400 text-xs font-mono uppercase tracking-widest mb-4">
+                  <Cpu className="w-3 h-3" />
+                  Key Innovation
+                </div>
+                <h3 className="text-4xl font-bold text-white">Unsupervised Dialect Discovery</h3>
+                <p className="text-lg text-neutral-400 leading-relaxed">
+                  Traditional models require labeled data. Our system uses advanced clustering algorithms to identify and group distinct linguistic patterns automatically. This allows us to discover and map dialects that have never been formally documented.
+                </p>
+              </Reveal>
+            </div>
+            <div className="flex-1 w-full">
+              <div className="aspect-square border border-neutral-700 relative flex items-center justify-center bg-black">
+                <div className="relative w-64 h-64">
+                  {[...Array(5)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="absolute border border-yellow-500/20 rounded-full"
+                      style={{
+                        top: '50%',
+                        left: '50%',
+                        x: '-50%',
+                        y: '-50%',
+                        width: `${(i + 1) * 40}px`,
+                        height: `${(i + 1) * 40}px`
+                      }}
+                      animate={{ rotate: 360, scale: [1, 1.05, 1] }}
+                      transition={{ duration: 10 + i * 2, repeat: Infinity, ease: "linear" }}
+                    >
+                      <motion.div
+                        className="w-2 h-2 bg-yellow-500 rounded-full absolute -top-1 left-1/2"
+                        animate={{ opacity: [0.2, 1, 0.2] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
+                    </motion.div>
                   ))}
                 </div>
-
-                <div className="mt-8 pt-6 border-t border-white/5">
-                  <div className="flex items-center gap-2 text-neutral-400 text-sm">
-                    <div className="flex-1 h-1 bg-neutral-800 rounded-full overflow-hidden">
-                      <div className="h-full w-[75%] bg-gradient-to-r from-yellow-600 to-yellow-400"></div>
-                    </div>
-                    <span>Processing...</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Decorative Elements behind card */}
-              <div className="absolute -top-10 -right-10 w-64 h-64 bg-gradient-to-br from-yellow-600/20 to-transparent rounded-full blur-3xl -z-10"></div>
-              <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-gradient-to-tr from-neutral-500/10 to-transparent rounded-full blur-3xl -z-10"></div>
-            </div>
-          </div>
-        </section>
-
-        {/* Features Section */}
-        <section
-          className="py-32 px-6 bg-gradient-to-b from-neutral-900/50 to-black border-y border-white/5"
-          id="features"
-        >
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-              {/* Feature 1 */}
-              <div className="group p-8 border-l border-neutral-800 hover:border-yellow-500 transition-all duration-500 bg-gradient-to-b from-transparent to-transparent hover:to-yellow-900/10">
-                <Lightbulb className="w-10 h-10 text-yellow-600 group-hover:text-yellow-400 transition-colors mb-6" />
-                <h3 className="text-2xl font-bold text-white mb-4 font-serif">Deep Analysis</h3>
-                <p className="text-neutral-400 leading-relaxed group-hover:text-neutral-300 transition-colors">
-                  Advanced models analyze communication patterns, tone, and sentiment to detect risks and anomalies in
-                  real-time.
-                </p>
-              </div>
-
-              {/* Feature 2 */}
-              <div className="group p-8 border-l border-neutral-800 hover:border-yellow-500 transition-all duration-500 bg-gradient-to-b from-transparent to-transparent hover:to-yellow-900/10">
-                <Users className="w-10 h-10 text-yellow-600 group-hover:text-yellow-400 transition-colors mb-6" />
-                <h3 className="text-2xl font-bold text-white mb-4 font-serif">Risk Visualization</h3>
-                <p className="text-neutral-400 leading-relaxed group-hover:text-neutral-300 transition-colors">
-                  Interactive heatmaps instantly identify high-risk communication channels and contexts across your
-                  organization.
-                </p>
-              </div>
-
-              {/* Feature 3 */}
-              <div className="group p-8 border-l border-neutral-800 hover:border-yellow-500 transition-all duration-500 bg-gradient-to-b from-transparent to-transparent hover:to-yellow-900/10">
-                <Sparkles className="w-10 h-10 text-yellow-600 group-hover:text-yellow-400 transition-colors mb-6" />
-                <h3 className="text-2xl font-bold text-white mb-4 font-serif">Seamless Integration</h3>
-                <p className="text-neutral-400 leading-relaxed group-hover:text-neutral-300 transition-colors">
-                  Deploy our security pipelines into existing applications for continuous real-time linguistic safety
-                  and compliance.
-                </p>
               </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* FAQ Section */}
-        <FAQSection />
+      <section className="py-32 px-6 border-t border-neutral-900">
+        <div className="max-w-3xl mx-auto">
+          <Reveal>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-16 flex items-center gap-4">
+              <span className="w-8 h-8 border border-yellow-500 flex items-center justify-center text-yellow-500 text-sm font-mono">02</span>
+              Inquiries
+            </h2>
+          </Reveal>
 
-        {/* Footer */}
-        <footer className="py-12 px-6 border-t border-white/5 bg-gradient-to-b from-neutral-900 to-black">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-yellow-600" />
-              <span className="text-neutral-500 font-bold tracking-widest text-sm">BHASHASURAKSHA</span>
-            </div>
-            <p className="text-sm text-neutral-400">&copy; {new Date().getFullYear()} All rights reserved.</p>
+          <div className="space-y-4">
+            {FAQS.map((faq, i) => (
+              <FAQItem key={i} faq={faq} />
+            ))}
           </div>
-        </footer>
-      </div>
+        </div>
+      </section>
+
+      <footer className="py-8 px-6 bg-black border-t border-neutral-900">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-neutral-500 text-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
+            <span>SYSTEM ONLINE</span>
+          </div>
+          <p>&copy; {new Date().getFullYear()} BhashaSuraksha Initiative</p>
+        </div>
+      </footer>
     </div>
+  )
+}
+
+const FAQItem = ({ faq }) => {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <motion.div
+      initial={false}
+      className="border-b border-neutral-800"
+    >
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center justify-between w-full py-6 text-left group"
+      >
+        <span className={`text-lg font-medium transition-colors duration-300 ${isOpen ? 'text-yellow-400' : 'text-neutral-300 group-hover:text-white'}`}>
+          {faq.q}
+        </span>
+        <motion.div
+          animate={{ rotate: isOpen ? 45 : 0 }}
+          className={`text-neutral-500 group-hover:text-yellow-500 transition-colors`}
+        >
+          <span className="text-2xl">+</span>
+        </motion.div>
+      </button>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <p className="pb-6 text-neutral-400 leading-relaxed pr-8">
+              {faq.a}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   )
 }
