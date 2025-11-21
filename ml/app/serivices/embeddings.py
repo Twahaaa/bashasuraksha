@@ -1,25 +1,33 @@
-import whisper
+import torch
+import librosa
+from transformers import Wav2Vec2FeatureExtractor, Wav2Vec2Model
 
-def load_whisper_model(model_name: str = "tiny"):
-    return whisper.load_model(model_name)
+SAMPLE_RATE = 16000
 
-def detect_language(model, audio):
-    """
-    Returns (language, confidence).
-    Must pad_or_trim before mel extraction.
-    """
-    audio = whisper.pad_or_trim(audio)
-    mel = whisper.log_mel_spectrogram(audio).to(model.device)
-    
-    _, probs = model.detect_language(mel)
-    lang = max(probs, key=probs.get)
-    confidence = float(probs[lang])
-    
-    return lang, confidence
+def load_embedding_model(model_name="ai4bharat/indicwav2vec_v1"):
+    feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(
+        model_name,
+        cache_dir="ml/app/models/indicwav2vec"
+    )
+    model = Wav2Vec2Model.from_pretrained(
+        model_name,
+        cache_dir="ml/app/models/indicwav2vec"
+    )
+    return feature_extractor, model
 
-def transcribe_audio(model, path: str):
+def extract_embedding(feature_extractor, model, audio):
     """
-    Whisper STT.
+    Returns a numpy embedding vector (mean pooled last hidden state).
     """
-    result = model.transcribe(path)
-    return result["text"]
+    inputs = feature_extractor(
+        audio,
+        sampling_rate=SAMPLE_RATE,
+        return_tensors="pt",
+        padding=True,
+    )
+
+    with torch.no_grad():
+        outputs = model(**inputs)
+        embedding = outputs.last_hidden_state.mean(dim=1)
+
+    return embedding.squeeze().numpy()
