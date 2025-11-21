@@ -1,17 +1,21 @@
 import torch
 import librosa
 from transformers import Wav2Vec2FeatureExtractor, Wav2Vec2Model
+from pathlib import Path
 
 SAMPLE_RATE = 16000
 
-def load_embedding_model(model_name="ai4bharat/indicwav2vec_v1"):
+def load_embedding_model(model_name="facebook/wav2vec2-large-xlsr-53"):
+    # Get absolute path to models directory
+    base_path = Path(__file__).resolve().parent.parent / "models" / "indicwav2vec"
+    
     feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(
         model_name,
-        cache_dir="ml/app/models/indicwav2vec"
+        cache_dir=str(base_path)
     )
     model = Wav2Vec2Model.from_pretrained(
         model_name,
-        cache_dir="ml/app/models/indicwav2vec"
+        cache_dir=str(base_path)
     )
     return feature_extractor, model
 

@@ -5,19 +5,17 @@ import numpy as np
 from .preprocess import preprocess_audio
 from .whisper_utils import load_whisper_model, detect_language, transcribe_audio
 from .embeddings import load_embedding_model, extract_embedding
-from .clusturing import cluster_embedding
-from .extract_keywords import extract_keywords
+from .clustering import cluster_embedding
 
 class AudioProcessor:
 
-    def __init__(self, whisper_model="tiny", embed_model="ai4bharat/indicwav2vec_v1", clustering_eps=5, conf_threshold=0.75):
+    def __init__(self, whisper_model="tiny", embed_model="facebook/wav2vec2-large-xlsr-53", clustering_eps=5, conf_threshold=0.75):
         
         self.whisper = load_whisper_model(whisper_model)
 
         self.feature_extractor, self.embedding_model = load_embedding_model(embed_model)
 
         self.embeddings_history = []
-
         self.clustering_eps = clustering_eps
         self.conf_threshold = conf_threshold
 
@@ -38,12 +36,11 @@ class AudioProcessor:
             cluster_id = cluster_embedding(embedding, self.embeddings_history, eps=self.clustering_eps)
             self.embeddings_history.append(embedding)
 
-        extracted_keywords = extract_keywords(text=transcript)
 
         return {
             "language": lang,
             "confidence": confidence,
             "transcript": transcript,
             "cluster_id": cluster_id,
-            "extracted_keywords": extract_keywords
+            "embedding": embedding.tolist(),
         }

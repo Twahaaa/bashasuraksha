@@ -1,7 +1,9 @@
 from app.services.audio_processor import AudioProcessor
 import os
 
-SAMPLE = "ml/tests/sample_audio/sample.wav"
+from pathlib import Path
+
+SAMPLE = str(Path(__file__).resolve().parent / "sample_audio" / "beary.m4a")
 
 def test_full_pipeline():
     assert os.path.exists(SAMPLE)

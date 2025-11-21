@@ -1,7 +1,9 @@
 import whisper
+from pathlib import Path
 
 def load_whisper_model(model_name="tiny"):
-    return whisper.load_model(model_name, download_root="ml/app/models/whisper")
+    base_path = Path(__file__).resolve().parent.parent / "models" / "whisper"
+    return whisper.load_model(model_name, download_root=str(base_path))
 
 
 def detect_language(model, audio):

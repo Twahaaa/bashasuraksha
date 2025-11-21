@@ -1,7 +1,9 @@
 from app.services.preprocess import preprocess_audio
 import os
 
-SAMPLE = "ml/tests/sample_audio/sample.wav"
+from pathlib import Path
+
+SAMPLE = str(Path(__file__).resolve().parent / "sample_audio" / "beary.m4a")
 
 def test_preprocess():
     assert os.path.exists(SAMPLE), "Sample audio missing! Add sample.wav to tests"

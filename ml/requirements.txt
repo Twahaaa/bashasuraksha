@@ -19,6 +19,7 @@ huggingface-hub
 python-dotenv    
 
 google-genai
+requests
 
 pytest
 pytest-asyncio
