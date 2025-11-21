@@ -17,3 +17,5 @@ sentencepiece
 huggingface-hub
 
 python-dotenv    
+
+google-genai

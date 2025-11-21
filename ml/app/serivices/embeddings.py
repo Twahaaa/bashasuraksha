@@ -16,9 +16,7 @@ def load_embedding_model(model_name="ai4bharat/indicwav2vec_v1"):
     return feature_extractor, model
 
 def extract_embedding(feature_extractor, model, audio):
-    """
-    Returns a numpy embedding vector (mean pooled last hidden state).
-    """
+    
     inputs = feature_extractor(
         audio,
         sampling_rate=SAMPLE_RATE,

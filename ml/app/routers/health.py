@@ -1,5 +1,3 @@
-# ml/app/routers/health.py
-
 from fastapi import APIRouter
 
 router = APIRouter()

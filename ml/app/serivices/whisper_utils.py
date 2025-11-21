@@ -5,10 +5,7 @@ def load_whisper_model(model_name="tiny"):
 
 
 def detect_language(model, audio):
-    """
-    Returns (language, confidence).
-    Must pad_or_trim before mel extraction.
-    """
+    
     audio = whisper.pad_or_trim(audio)
     mel = whisper.log_mel_spectrogram(audio).to(model.device)
     
