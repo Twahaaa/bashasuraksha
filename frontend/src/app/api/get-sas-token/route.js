@@ -6,7 +6,7 @@ import {
 import { NextResponse } from "next/server";
 
 const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
-const containerName = "audio-recordings";
+const containerName = "audios";
 
 function parseConnectionString(cs) {
     const obj = {};

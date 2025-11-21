@@ -7,7 +7,7 @@ import { BlockBlobClient } from "@azure/storage-blob";
 const MAX_AUDIO_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 const AUDIO_MIME_TYPE = "audio/webm";
 const RECORDED_FILENAME = "recorded_audio.webm";
-const PROCESS_API_URL = "https://parky-reliably-zoe.ngrok-free.dev/process";
+const PROCESS_API_URL = "http://127.0.0.1:8000/process";
 
 const COLORS = {
   yellow: "#FACC15",
@@ -46,8 +46,28 @@ const useAudioRecorder = () => {
   const [uploading, setUploading] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [finalMessage, setFinalMessage] = useState("");
+  const [location, setLocation] = useState({ lat: 0, long: 0 });
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
+
+  // Get user location on mount
+  useCallback(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            lat: position.coords.latitude,
+            long: position.coords.longitude
+          });
+          console.log("Location obtained:", position.coords.latitude, position.coords.longitude);
+        },
+        (error) => {
+          console.warn("Location access denied or unavailable:", error);
+          // Keep default 0, 0
+        }
+      );
+    }
+  }, [])();
 
   const startRecording = useCallback(async () => {
     try {
@@ -103,7 +123,7 @@ const useAudioRecorder = () => {
       const processRes = await fetch(PROCESS_API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileUrl: blobUrl, lat: 0, long: 0 })
+        body: JSON.stringify({ file_url: blobUrl, lat: location.lat, long: location.long })
       });
 
       if (!processRes.ok) {
@@ -176,6 +196,26 @@ const useFileUpload = () => {
   const [uploading, setUploading] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [finalMessage, setFinalMessage] = useState("");
+  const [location, setLocation] = useState({ lat: 0, long: 0 });
+
+  // Get user location on mount
+  useCallback(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            lat: position.coords.latitude,
+            long: position.coords.longitude
+          });
+          console.log("Location obtained:", position.coords.latitude, position.coords.longitude);
+        },
+        (error) => {
+          console.warn("Location access denied or unavailable:", error);
+          // Keep default 0, 0
+        }
+      );
+    }
+  }, [])();
 
   const handleFileChange = useCallback((e) => {
     const selectedFile = e.target.files?.[0] || null;
@@ -213,7 +253,7 @@ const useFileUpload = () => {
       const processRes = await fetch(PROCESS_API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileUrl: blobUrl, lat: 0, long: 0 })
+        body: JSON.stringify({ file_url: blobUrl, lat: location.lat, long: location.long })
       });
 
       if (!processRes.ok) {
