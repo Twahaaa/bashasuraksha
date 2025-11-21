@@ -1,14 +1,16 @@
 import torch
 import librosa
+from functools import lru_cache
 from transformers import Wav2Vec2FeatureExtractor, Wav2Vec2Model
 from pathlib import Path
 
 SAMPLE_RATE = 16000
 
+# Lazily load model ONLY when first requested
+@lru_cache()
 def load_embedding_model(model_name="facebook/wav2vec2-large-xlsr-53"):
-    # Get absolute path to models directory
     base_path = Path(__file__).resolve().parent.parent / "models" / "wav2vec2"
-    
+
     feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(
         model_name,
         cache_dir=str(base_path)
@@ -19,8 +21,10 @@ def load_embedding_model(model_name="facebook/wav2vec2-large-xlsr-53"):
     )
     return feature_extractor, model
 
-def extract_embedding(feature_extractor, model, audio):
-    
+
+def extract_embedding(audio):
+    feature_extractor, model = load_embedding_model()
+
     inputs = feature_extractor(
         audio,
         sampling_rate=SAMPLE_RATE,

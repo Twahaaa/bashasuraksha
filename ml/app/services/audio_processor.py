@@ -24,11 +24,11 @@ class AudioProcessor:
 
         audio, sr = preprocess_audio(path)
 
-        lang, confidence = detect_language(self.whisper, audio)
+        lang, confidence = detect_language(audio)
 
-        transcript = transcribe_audio(self.whisper, path)
+        transcript = transcribe_audio(path)
 
-        embedding = extract_embedding(self.feature_extractor, self.embedding_model, audio)
+        embedding = extract_embedding(audio)
 
         cluster_id = None
         if confidence < self.conf_threshold:
