@@ -1,10 +1,14 @@
-import librosa
+# ml/app/main.py
 
-SAMPLE_RATE = 16000
+from fastapi import FastAPI
+from app.routers import process, health
 
-def preprocess_audio(path: str):
-    """
-    Loads and normalizes audio. Returns (waveform, sample_rate).
-    """
-    audio, sr = librosa.load(path, sr=SAMPLE_RATE, mono=True)
-    return audio, sr
+app = FastAPI()
+
+# Register API routers
+app.include_router(process.router)
+app.include_router(health.router)
+
+@app.get("/")
+def index():
+    return {"message": "BhashaSuraksha ML API is running"}

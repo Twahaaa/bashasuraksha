@@ -1,7 +1,8 @@
 import whisper
 
-def load_whisper_model(model_name: str = "tiny"):
-    return whisper.load_model(model_name)
+def load_whisper_model(model_name="tiny"):
+    return whisper.load_model(model_name, download_root="ml/app/models/whisper")
+
 
 def detect_language(model, audio):
     """
