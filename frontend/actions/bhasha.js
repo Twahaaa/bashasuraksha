@@ -1,6 +1,6 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 export async function saveToDB(data) {
   try {
@@ -15,6 +15,11 @@ export async function saveToDB(data) {
           lat: data.lat ?? null,
           lng: data.lng ?? null,
         },
+      });
+
+      await prisma.cluster.update({
+        where: { id: data.clusterId },
+        data: { sampleCount: { increment: 1 } },
       });
 
       return { status: "unknown_saved", saved };
