@@ -17,7 +17,7 @@ export default function HeatmapPage() {
   });
 
   return (
-    <div className="flex w-full h-screen">
+    <div className="flex w-full pt-10 h-screen">
       <FiltersSidebar filters={filters} setFilters={setFilters} />
 
       <div className="flex-1">

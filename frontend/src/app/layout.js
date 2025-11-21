@@ -22,10 +22,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-     <body
+    <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <StarsBackground className="min-h-screen w-full">
-          <div className="pt-22">
+          <div>
             {children}
           </div>
         </StarsBackground>

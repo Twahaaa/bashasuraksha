@@ -376,7 +376,7 @@ export function UploadComponent() {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 py-20 mt-[-80]">
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 py-20">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
