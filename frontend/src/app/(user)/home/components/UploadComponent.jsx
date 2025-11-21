@@ -138,7 +138,10 @@ const useAudioRecorder = () => {
       setFinalMessage("Saving to database...");
       console.log("Step 3: Saving to database...");
 
-      const saveRes = await fetch("/api/save-recording", {
+      // Add the file URL to the processed data
+      processedData.file_url = blobUrl;
+
+      const saveRes = await fetch("/api/save-recordings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(processedData)
@@ -268,7 +271,10 @@ const useFileUpload = () => {
       setFinalMessage("Saving to database...");
       console.log("Step 3: Saving to database...");
 
-      const saveRes = await fetch("/api/save-recording", {
+      // Add the file URL to the processed data
+      processedData.file_url = blobUrl;
+
+      const saveRes = await fetch("/api/save-recordings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(processedData)
