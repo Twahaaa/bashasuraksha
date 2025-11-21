@@ -80,6 +80,7 @@ export const KnownSampleScalarFieldEnum = {
   transcript: 'transcript',
   lat: 'lat',
   lng: 'lng',
+  keywords: 'keywords',
   createdAt: 'createdAt'
 } as const
 
@@ -95,6 +96,7 @@ export const UnknownSampleScalarFieldEnum = {
   clusterId: 'clusterId',
   lat: 'lat',
   lng: 'lng',
+  keywords: 'keywords',
   embedding: 'embedding',
   createdAt: 'createdAt'
 } as const
