@@ -48,26 +48,39 @@ const useAudioRecorder = () => {
   const [processing, setProcessing] = useState(false);
   const [finalMessage, setFinalMessage] = useState("");
   const [location, setLocation] = useState({ lat: 0, lng: 0 });
+  const [locationReady, setLocationReady] = useState(false);
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
 
-  // Get user location on mount
-  // Get user location on mount
+  // Get user location on mount with high accuracy
   React.useEffect(() => {
+    console.log("[AudioRecorder] Requesting high-accuracy location...");
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setLocation({
+          const coords = {
             lat: position.coords.latitude,
             lng: position.coords.longitude
-          });
-          console.log("Location obtained:", position.coords.latitude, position.coords.longitude);
+          };
+          setLocation(coords);
+          setLocationReady(true);
+          console.log("[AudioRecorder] Location SUCCESS:", coords);
+          console.log(`[AudioRecorder] Accuracy: ±${position.coords.accuracy}m`);
         },
         (error) => {
-          console.warn("Location access denied or unavailable:", error);
-          // Keep default 0, 0
+          console.error("[AudioRecorder] Location ERROR:", error.message, error.code);
+          console.warn("[AudioRecorder] Defaulting to (0, 0)");
+          setLocationReady(true);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
         }
       );
+    } else {
+      console.error("[AudioRecorder] Geolocation not supported");
+      setLocationReady(true);
     }
   }, []);
 
@@ -205,24 +218,37 @@ const useFileUpload = () => {
   const [processing, setProcessing] = useState(false);
   const [finalMessage, setFinalMessage] = useState("");
   const [location, setLocation] = useState({ lat: 0, lng: 0 });
+  const [locationReady, setLocationReady] = useState(false);
 
-  // Get user location on mount
-  // Get user location on mount
+  // Get user location on mount with high accuracy
   React.useEffect(() => {
+    console.log("[FileUpload] Requesting high-accuracy location...");
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setLocation({
+          const coords = {
             lat: position.coords.latitude,
             lng: position.coords.longitude
-          });
-          console.log("Location obtained:", position.coords.latitude, position.coords.longitude);
+          };
+          setLocation(coords);
+          setLocationReady(true);
+          console.log("[FileUpload] Location SUCCESS:", coords);
+          console.log(`[FileUpload] Accuracy: ±${position.coords.accuracy}m`);
         },
         (error) => {
-          console.warn("Location access denied or unavailable:", error);
-          // Keep default 0, 0
+          console.error("[FileUpload] Location ERROR:", error.message, error.code);
+          console.warn("[FileUpload] Defaulting to (0, 0)");
+          setLocationReady(true);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
         }
       );
+    } else {
+      console.error("[FileUpload] Geolocation not supported");
+      setLocationReady(true);
     }
   }, []);
 

@@ -135,7 +135,6 @@ export default function MapContainer() {
   const [selectedRegion, setSelectedRegion] = useState(null);
   const [selectedSamples, setSelectedSamples] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [geocodedData, setGeocodedData] = useState([]);
   const [samplesData, setSamplesData] = useState([]);
   const [clusterColors, setClusterColors] = useState({});
   const [error, setError] = useState(null);
@@ -168,6 +167,9 @@ export default function MapContainer() {
           });
           setClusterColors(colorMap);
           
+          // Set loading to false after data is processed
+          setIsLoading(false);
+          
         } else {
           setError(json.error || "Failed to fetch heatmap data.");
           setIsLoading(false);
@@ -182,61 +184,38 @@ export default function MapContainer() {
   }, []);
 
   // ============================================
-  // STEP 2: Group samples by region
+  // STEP 2: Group samples by lat/lng coordinates
   // ============================================
-  // ============================================
-  // STEP 2: Group samples by region
-  // ============================================
-  const groupedByRegion = React.useMemo(() => {
+  const groupedByCoordinates = React.useMemo(() => {
     return samplesData.reduce((acc, sample) => {
-      if (sample.region) {
-        if (!acc[sample.region]) acc[sample.region] = [];
-        acc[sample.region].push(sample);
+      // Use lat/lng if available, otherwise skip
+      if (sample.lat !== null && sample.lat !== undefined && 
+          sample.lng !== null && sample.lng !== undefined) {
+        // Create a key from coordinates (rounded to 4 decimal places for grouping nearby samples)
+        const key = `${sample.lat.toFixed(4)},${sample.lng.toFixed(4)}`;
+        if (!acc[key]) {
+          acc[key] = {
+            lat: sample.lat,
+            lng: sample.lng,
+            samples: []
+          };
+        }
+        acc[key].samples.push(sample);
       }
       return acc;
     }, {});
   }, [samplesData]);
 
   // ============================================
-  // STEP 3: Geocode regions when samples are loaded
+  // STEP 3: Prepare geocoded data (no geocoding needed, we have coordinates)
   // ============================================
-  useEffect(() => {
-    if (samplesData.length === 0) return;
-
-    const geocodeAllRegions = async () => {
-      setIsLoading(true);
-      const geocoded = [];
-      const regions = Object.entries(groupedByRegion);
-
-      for (const [region, samples] of regions) {
-        // Check if samples have lat/lng directly
-        // We assume samples in the same region group have the same location if grouped by region string
-        // But if we have lat/lng, we can use the first sample's lat/lng
-        const firstSample = samples[0];
-        let coordinates = null;
-
-        if (firstSample.lat !== null && firstSample.lng !== null && firstSample.lat !== undefined && firstSample.lng !== undefined) {
-            coordinates = { lat: firstSample.lat, lng: firstSample.lng };
-        } else {
-            // Fallback to parsing region string
-            coordinates = await geocodeRegion(region);
-        }
-
-        if (coordinates) {
-          geocoded.push({ region, samples, coordinates });
-        } else {
-          console.warn(`Could not geocode region: ${region}`);
-        }
-        // Small delay to avoid blocking UI if many regions (though no rate limit needed for local parsing)
-        await new Promise((resolve) => setTimeout(resolve, 10));
-      }
-
-      setGeocodedData(geocoded);
-      setIsLoading(false);
-    };
-
-    geocodeAllRegions();
-  }, [samplesData, groupedByRegion]);
+  const geocodedData = React.useMemo(() => {
+    return Object.entries(groupedByCoordinates).map(([key, data]) => ({
+      region: key, // Keep for compatibility
+      samples: data.samples,
+      coordinates: { lat: data.lat, lng: data.lng }
+    }));
+  }, [groupedByCoordinates]);
 
   // Define updateMarkers before it's used
   const updateMarkers = React.useCallback((mapInstance) => {
@@ -292,7 +271,6 @@ export default function MapContainer() {
     if (mapRef.current) return; // Initialize only once
     if (!mapContainer.current) return; // Ensure container ref exists
     // Wait for colors to be ready. 
-    // If samples exist but geocoding failed for all, we still want to show the map (empty).
     if (samplesData.length > 0 && Object.keys(clusterColors).length === 0) return; 
     if (isLoading) return;
 
@@ -325,7 +303,7 @@ export default function MapContainer() {
       map.remove();
       mapRef.current = null;
     };
-  }, [geocodedData, isLoading, samplesData.length, clusterColors, updateMarkers]); // Re-run if geocodedData changes (initially empty)
+  }, [geocodedData, isLoading, samplesData.length, clusterColors, updateMarkers]);
 
   // Update markers when geocodedData or clusterColors change
   useEffect(() => {
