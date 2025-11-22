@@ -47,18 +47,19 @@ const useAudioRecorder = () => {
   const [uploading, setUploading] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [finalMessage, setFinalMessage] = useState("");
-  const [location, setLocation] = useState({ lat: 0, long: 0 });
+  const [location, setLocation] = useState({ lat: 0, lng: 0 });
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
 
   // Get user location on mount
-  useCallback(() => {
+  // Get user location on mount
+  React.useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setLocation({
             lat: position.coords.latitude,
-            long: position.coords.longitude
+            lng: position.coords.longitude
           });
           console.log("Location obtained:", position.coords.latitude, position.coords.longitude);
         },
@@ -68,7 +69,7 @@ const useAudioRecorder = () => {
         }
       );
     }
-  }, [])();
+  }, []);
 
   const startRecording = useCallback(async () => {
     try {
@@ -129,7 +130,7 @@ const useAudioRecorder = () => {
         const processRes = await fetch(PROCESS_API_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ file_url: blobUrl, lat: location.lat, long: location.long }),
+          body: JSON.stringify({ file_url: blobUrl, lat: location.lat, lng: location.lng }),
           signal: controller.signal
         });
         clearTimeout(timeoutId);
@@ -175,7 +176,7 @@ const useAudioRecorder = () => {
       setUploading(false);
       setProcessing(false);
     }
-  }, [audioBlob, location.lat, location.long]);
+  }, [audioBlob, location.lat, location.lng]);
 
   const clearRecording = useCallback(() => {
     setAudioBlob(null);
@@ -203,16 +204,17 @@ const useFileUpload = () => {
   const [uploading, setUploading] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [finalMessage, setFinalMessage] = useState("");
-  const [location, setLocation] = useState({ lat: 0, long: 0 });
+  const [location, setLocation] = useState({ lat: 0, lng: 0 });
 
   // Get user location on mount
-  useCallback(() => {
+  // Get user location on mount
+  React.useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setLocation({
             lat: position.coords.latitude,
-            long: position.coords.longitude
+            lng: position.coords.longitude
           });
           console.log("Location obtained:", position.coords.latitude, position.coords.longitude);
         },
@@ -222,7 +224,7 @@ const useFileUpload = () => {
         }
       );
     }
-  }, [])();
+  }, []);
 
   const handleFileChange = useCallback((e) => {
     const selectedFile = e.target.files?.[0] || null;
@@ -265,7 +267,7 @@ const useFileUpload = () => {
         const processRes = await fetch(PROCESS_API_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ file_url: blobUrl, lat: location.lat, long: location.long }),
+          body: JSON.stringify({ file_url: blobUrl, lat: location.lat, lng: location.lng }),
           signal: controller.signal
         });
         clearTimeout(timeoutId);
@@ -312,7 +314,7 @@ const useFileUpload = () => {
       setUploading(false);
       setProcessing(false);
     }
-  }, [file, location.lat, location.long]);
+  }, [file, location.lat, location.lng]);
 
   const clearFile = useCallback(() => {
     console.log("Clearing file");

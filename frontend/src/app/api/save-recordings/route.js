@@ -33,6 +33,8 @@ export async function POST(req) {
                     confidence: confidence || 0,
                     transcript: transcript || null,
                     region: `${lat || 0},${lng || 0}`,
+                    lat: lat || 0,
+                    lng: lng || 0,
                     keywords: transcript || "",
                 }
             });
@@ -57,6 +59,8 @@ export async function POST(req) {
                     transcript: transcript || null,
                     clusterId: cluster_id || null,
                     region: `${(lat && !isNaN(parseFloat(lat))) ? lat : 0},${(lng && !isNaN(parseFloat(lng))) ? lng : 0}`,
+                    lat: (lat && !isNaN(parseFloat(lat))) ? parseFloat(lat) : 0,
+                    lng: (lng && !isNaN(parseFloat(lng))) ? parseFloat(lng) : 0,
                     keywords: transcript || "",
                     embedding: embedding || []
                 }

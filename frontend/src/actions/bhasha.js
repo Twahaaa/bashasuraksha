@@ -94,8 +94,12 @@ export async function saveToDB(processedData) {
     // Get readable region name from coordinates
     const region = await getLocationString(lat, lng);
     
+    // Format coordinates for the region field (required for MapContainer)
+    const formattedRegion = `${(lat && !isNaN(parseFloat(lat))) ? lat : 0},${(lng && !isNaN(parseFloat(lng))) ? lng : 0}`;
+    
     console.log("Generated keywords:", keywords);
-    console.log("Resolved region:", region);
+    console.log("Resolved region (coords):", formattedRegion);
+    console.log("Readable location (for logging):", region);
 
     const CONFIDENCE_THRESHOLD = 0.75;
 
@@ -107,7 +111,9 @@ export async function saveToDB(processedData) {
           language: language || "unknown",
           confidence: confidence || 0,
           transcript: transcript || null,
-          region: region,
+          region: formattedRegion, // Use coordinates
+          lat: (lat && !isNaN(parseFloat(lat))) ? parseFloat(lat) : 0,
+          lng: (lng && !isNaN(parseFloat(lng))) ? parseFloat(lng) : 0,
           keywords: keywords,
         }
       });
@@ -117,27 +123,48 @@ export async function saveToDB(processedData) {
         type: "known",
         id: knownSample.id,
         language: knownSample.language,
-        region: region
+        region: formattedRegion
       };
     } else {
       // Save as an unknown sample (low confidence)
+      
+      // Ensure cluster exists if clusterId is provided
+      let validClusterId = cluster_id;
+      if (cluster_id) {
+        const clusterExists = await prisma.cluster.findUnique({
+          where: { id: cluster_id }
+        });
+        
+        if (!clusterExists) {
+          // Create the cluster if it doesn't exist
+          await prisma.cluster.create({
+            data: {
+              id: cluster_id,
+              sampleCount: 0
+            }
+          });
+        }
+      }
+      
       const unknownSample = await prisma.unknownSample.create({
         data: {
           fileUrl: file_url || "",
           languageGuess: language || null,
           confidence: confidence || 0,
           transcript: transcript || null,
-          clusterId: cluster_id || null,
-          region: region,
+          clusterId: validClusterId || null,
+          region: formattedRegion, // Use coordinates
+          lat: (lat && !isNaN(parseFloat(lat))) ? parseFloat(lat) : 0,
+          lng: (lng && !isNaN(parseFloat(lng))) ? parseFloat(lng) : 0,
           keywords: keywords,
           embedding: embedding || []
         }
       });
 
       // Update cluster sample count if clusterId exists
-      if (cluster_id) {
+      if (validClusterId) {
         await prisma.cluster.update({
-          where: { id: cluster_id },
+          where: { id: validClusterId },
           data: { sampleCount: { increment: 1 } },
         });
       }
@@ -146,8 +173,8 @@ export async function saveToDB(processedData) {
         success: true,
         type: "unknown",
         id: unknownSample.id,
-        clusterId: cluster_id,
-        region: region
+        clusterId: validClusterId,
+        region: formattedRegion
       };
     }
   } catch (error) {

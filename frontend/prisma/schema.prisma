@@ -19,6 +19,8 @@ model KnownSample {
   confidence  Float
   transcript  String?
   region      String?
+  lat         Float?
+  lng         Float?
   keywords    String
   createdAt   DateTime @default(now())
 }
@@ -31,6 +33,8 @@ model UnknownSample {
   transcript  String?
   clusterId   Int?
   region      String
+  lat         Float?
+  lng         Float?
   keywords    String
   embedding   Json
   createdAt   DateTime @default(now())

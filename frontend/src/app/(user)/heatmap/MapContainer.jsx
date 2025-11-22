@@ -209,7 +209,19 @@ export default function MapContainer() {
       const regions = Object.entries(groupedByRegion);
 
       for (const [region, samples] of regions) {
-        const coordinates = await geocodeRegion(region);
+        // Check if samples have lat/lng directly
+        // We assume samples in the same region group have the same location if grouped by region string
+        // But if we have lat/lng, we can use the first sample's lat/lng
+        const firstSample = samples[0];
+        let coordinates = null;
+
+        if (firstSample.lat !== null && firstSample.lng !== null && firstSample.lat !== undefined && firstSample.lng !== undefined) {
+            coordinates = { lat: firstSample.lat, lng: firstSample.lng };
+        } else {
+            // Fallback to parsing region string
+            coordinates = await geocodeRegion(region);
+        }
+
         if (coordinates) {
           geocoded.push({ region, samples, coordinates });
         } else {
@@ -278,6 +290,7 @@ export default function MapContainer() {
   // ============================================
   useEffect(() => {
     if (mapRef.current) return; // Initialize only once
+    if (!mapContainer.current) return; // Ensure container ref exists
     // Wait for colors to be ready. 
     // If samples exist but geocoding failed for all, we still want to show the map (empty).
     if (samplesData.length > 0 && Object.keys(clusterColors).length === 0) return; 
