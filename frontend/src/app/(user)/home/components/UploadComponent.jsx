@@ -8,7 +8,7 @@ import { saveToDB } from "@/actions/bhasha";
 const MAX_AUDIO_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 const AUDIO_MIME_TYPE = "audio/webm";
 const RECORDED_FILENAME = "recorded_audio.webm";
-const PROCESS_API_URL = "http://127.0.0.1:8000/process";
+const PROCESS_API_URL = "https://parky-reliably-zoe.ngrok-free.dev/process";
 
 const COLORS = {
   yellow: "#FACC15",
@@ -175,7 +175,7 @@ const useAudioRecorder = () => {
       setUploading(false);
       setProcessing(false);
     }
-  }, [audioBlob]);
+  }, [audioBlob, location.lat, location.long]);
 
   const clearRecording = useCallback(() => {
     setAudioBlob(null);
@@ -312,7 +312,7 @@ const useFileUpload = () => {
       setUploading(false);
       setProcessing(false);
     }
-  }, [file]);
+  }, [file, location.lat, location.long]);
 
   const clearFile = useCallback(() => {
     console.log("Clearing file");
@@ -637,7 +637,7 @@ export function UploadComponent() {
             Contribute Your Voice
           </h1>
           <p className="text-neutral-400 font-mono text-sm tracking-wide max-w-2xl">
-            Help preserve India's linguistic heritage by uploading or recording audio samples
+            Help preserve India&apos;s linguistic heritage by uploading or recording audio samples
           </p>
         </motion.div>
         <motion.div

@@ -95,7 +95,7 @@ const AudioPopup = ({ region, audioSamples, clusterColors, onClose }) => {
               </div>
               
               {sample.transcript ? (
-                <p className="text-sm text-neutral-200 mb-3 italic">"{sample.transcript}"</p>
+                <p className="text-sm text-neutral-200 mb-3 italic">&quot;{sample.transcript}&quot;</p>
               ) : (
                 <p className="text-sm text-neutral-500 mb-3 italic">No transcript available</p>
               )}
@@ -184,13 +184,18 @@ export default function MapContainer() {
   // ============================================
   // STEP 2: Group samples by region
   // ============================================
-  const groupedByRegion = samplesData.reduce((acc, sample) => {
-    if (sample.region) {
-      if (!acc[sample.region]) acc[sample.region] = [];
-      acc[sample.region].push(sample);
-    }
-    return acc;
-  }, {});
+  // ============================================
+  // STEP 2: Group samples by region
+  // ============================================
+  const groupedByRegion = React.useMemo(() => {
+    return samplesData.reduce((acc, sample) => {
+      if (sample.region) {
+        if (!acc[sample.region]) acc[sample.region] = [];
+        acc[sample.region].push(sample);
+      }
+      return acc;
+    }, {});
+  }, [samplesData]);
 
   // ============================================
   // STEP 3: Geocode regions when samples are loaded
@@ -219,7 +224,54 @@ export default function MapContainer() {
     };
 
     geocodeAllRegions();
-  }, [samplesData]);
+  }, [samplesData, groupedByRegion]);
+
+  // Define updateMarkers before it's used
+  const updateMarkers = React.useCallback((mapInstance) => {
+      if (!mapInstance) return;
+      
+      // Clear existing markers
+      markersRef.current.forEach((m) => m.remove());
+      markersRef.current = [];
+
+      geocodedData.forEach(({ region, samples, coordinates }) => {
+        // Use the first sample's clusterId for marker color
+        const firstSample = samples[0];
+        const clusterColor = clusterColors[firstSample.clusterId] || "#94a3b8";
+
+        const el = document.createElement("div");
+        el.style.cssText = "width:30px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;";
+
+        const marker = document.createElement("div");
+        marker.style.cssText = `width:30px;height:30px;border-radius:50%;background-color:${clusterColor};border:3px solid rgba(0,0,0,0.8);position:relative;box-shadow:0 2px 8px rgba(0,0,0,0.6);transition:transform 0.2s ease,box-shadow 0.2s ease;`;
+        el.appendChild(marker);
+
+        const badge = document.createElement("div");
+        badge.textContent = samples.length;
+        badge.style.cssText = "position:absolute;top:-8px;right:-8px;background:#FACC15;color:black;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:bold;font-family:monospace;border:2px solid black;pointer-events:none;";
+        marker.appendChild(badge);
+
+        el.addEventListener("mouseenter", () => {
+          marker.style.transform = "scale(1.15)";
+          marker.style.boxShadow = "0 4px 12px rgba(0,0,0,0.8)";
+        });
+        el.addEventListener("mouseleave", () => {
+          marker.style.transform = "scale(1)";
+          marker.style.boxShadow = "0 2px 8px rgba(0,0,0,0.6)";
+        });
+
+        el.addEventListener("click", () => {
+          setSelectedRegion(region);
+          setSelectedSamples(samples);
+        });
+
+        const mapMarker = new maplibregl.Marker({ element: el, anchor: "center" })
+          .setLngLat(coordinates)
+          .addTo(mapInstance);
+
+        markersRef.current.push(mapMarker);
+      });
+  }, [geocodedData, clusterColors]);
 
   // ============================================
   // STEP 4: Initialize map and add markers
@@ -260,57 +312,15 @@ export default function MapContainer() {
       map.remove();
       mapRef.current = null;
     };
-  }, [geocodedData]); // Re-run if geocodedData changes (initially empty)
+  }, [geocodedData, isLoading, samplesData.length, clusterColors, updateMarkers]); // Re-run if geocodedData changes (initially empty)
 
   // Update markers when geocodedData or clusterColors change
   useEffect(() => {
       if (!mapRef.current) return;
       updateMarkers(mapRef.current);
-  }, [geocodedData, clusterColors]);
+  }, [geocodedData, clusterColors, updateMarkers]);
 
-  const updateMarkers = (map) => {
-      // Clear existing markers
-      markersRef.current.forEach((m) => m.remove());
-      markersRef.current = [];
 
-      geocodedData.forEach(({ region, samples, coordinates }) => {
-        // Use the first sample's clusterId for marker color
-        const firstSample = samples[0];
-        const clusterColor = clusterColors[firstSample.clusterId] || "#94a3b8";
-
-        const el = document.createElement("div");
-        el.style.cssText = "width:30px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;";
-
-        const marker = document.createElement("div");
-        marker.style.cssText = `width:30px;height:30px;border-radius:50%;background-color:${clusterColor};border:3px solid rgba(0,0,0,0.8);position:relative;box-shadow:0 2px 8px rgba(0,0,0,0.6);transition:transform 0.2s ease,box-shadow 0.2s ease;`;
-        el.appendChild(marker);
-
-        const badge = document.createElement("div");
-        badge.textContent = samples.length;
-        badge.style.cssText = "position:absolute;top:-8px;right:-8px;background:#FACC15;color:black;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:bold;font-family:monospace;border:2px solid black;pointer-events:none;";
-        marker.appendChild(badge);
-
-        el.addEventListener("mouseenter", () => {
-          marker.style.transform = "scale(1.15)";
-          marker.style.boxShadow = "0 4px 12px rgba(0,0,0,0.8)";
-        });
-        el.addEventListener("mouseleave", () => {
-          marker.style.transform = "scale(1)";
-          marker.style.boxShadow = "0 2px 8px rgba(0,0,0,0.6)";
-        });
-
-        el.addEventListener("click", () => {
-          setSelectedRegion(region);
-          setSelectedSamples(samples);
-        });
-
-        const mapMarker = new maplibregl.Marker({ element: el, anchor: "center" })
-          .setLngLat(coordinates)
-          .addTo(map);
-
-        markersRef.current.push(mapMarker);
-      });
-  };
 
   if (error) {
     return (

@@ -26,28 +26,29 @@ export function Navbar() {
   const shapeTimeoutRef = useRef(null);
 
   const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
-
-  useEffect(() => {
+    const nextIsOpen = !isOpen;
+    setIsOpen(nextIsOpen);
+    
     if (shapeTimeoutRef.current) {
       clearTimeout(shapeTimeoutRef.current);
     }
 
-    if (isOpen) {
+    if (nextIsOpen) {
       setHeaderShapeClass("rounded-xl");
     } else {
       shapeTimeoutRef.current = setTimeout(() => {
         setHeaderShapeClass("rounded-full");
       }, 300);
     }
+  };
 
+  useEffect(() => {
     return () => {
       if (shapeTimeoutRef.current) {
         clearTimeout(shapeTimeoutRef.current);
       }
     };
-  }, [isOpen]);
+  }, []);
 
   const logoElement = (
     <div className="relative w-5 h-5 flex items-center justify-center">
