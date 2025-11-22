@@ -3,6 +3,7 @@ import React, { useState, useRef, useCallback } from "react";
 import { Upload, Mic, Shield, Activity, Send, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BlockBlobClient } from "@azure/storage-blob";
+import { saveToDB } from "@/actions/bhasha";
 
 const MAX_AUDIO_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 const AUDIO_MIME_TYPE = "audio/webm";
@@ -118,51 +119,54 @@ const useAudioRecorder = () => {
       setUploading(false);
       setProcessing(true);
       setFinalMessage("Processing audio...");
-      console.log("Step 2: Processing audio via ngrok API...");
+      console.log("Step 2: Processing audio via ML API...");
 
-      const processRes = await fetch(PROCESS_API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ file_url: blobUrl, lat: location.lat, long: location.long })
-      });
+      // Add timeout for ML processing (60 seconds)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000);
 
-      if (!processRes.ok) {
-        const errorText = await processRes.text();
-        console.error("Process error:", errorText);
-        throw new Error("Processing failed");
+      try {
+        const processRes = await fetch(PROCESS_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ file_url: blobUrl, lat: location.lat, long: location.long }),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (!processRes.ok) {
+          const errorText = await processRes.text();
+          console.error("Process error:", errorText);
+          throw new Error("Processing failed: " + errorText);
+        }
+
+        const processedData = await processRes.json();
+        console.log("Processed data:", processedData);
+
+        setFinalMessage("Saving to database...");
+        console.log("Step 3: Saving to database...");
+
+        // Add the file URL to the processed data
+        processedData.file_url = blobUrl;
+
+        // Call Server Action directly
+        const saveData = await saveToDB(processedData);
+        console.log("Save successful:", saveData);
+
+        setFinalMessage("✓ Successfully saved!");
+
+        setTimeout(() => {
+          setAudioBlob(null);
+          setAudioURL(null);
+          setFinalMessage("");
+        }, 2000);
+
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          throw new Error("Processing timed out. The ML server might be busy or down.");
+        }
+        throw err;
       }
-
-      const processedData = await processRes.json();
-      console.log("Processed data:", processedData);
-
-      setFinalMessage("Saving to database...");
-      console.log("Step 3: Saving to database...");
-
-      // Add the file URL to the processed data
-      processedData.file_url = blobUrl;
-
-      const saveRes = await fetch("/api/save-recordings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(processedData)
-      });
-
-      if (!saveRes.ok) {
-        const errorText = await saveRes.text();
-        console.error("Save error:", errorText);
-        throw new Error("Failed to save to database");
-      }
-
-      const saveData = await saveRes.json();
-      console.log("Save successful:", saveData);
-
-      setFinalMessage("✓ Successfully saved!");
-
-      setTimeout(() => {
-        setAudioBlob(null);
-        setAudioURL(null);
-        setFinalMessage("");
-      }, 2000);
 
     } catch (err) {
       console.error("Send error:", err);
@@ -251,51 +255,55 @@ const useFileUpload = () => {
       setUploading(false);
       setProcessing(true);
       setFinalMessage("Processing audio...");
-      console.log("Step 2: Processing audio via ngrok API...");
+      console.log("Step 2: Processing audio via ML API...");
 
-      const processRes = await fetch(PROCESS_API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ file_url: blobUrl, lat: location.lat, long: location.long })
-      });
+      // Add timeout for ML processing (60 seconds)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000);
 
-      if (!processRes.ok) {
-        const errorText = await processRes.text();
-        console.error("Process error:", errorText);
-        throw new Error("Processing failed");
+      try {
+        const processRes = await fetch(PROCESS_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ file_url: blobUrl, lat: location.lat, long: location.long }),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (!processRes.ok) {
+          const errorText = await processRes.text();
+          console.error("Process error:", errorText);
+          throw new Error("Processing failed: " + errorText);
+        }
+
+        const processedData = await processRes.json();
+        console.log("Processed data:", processedData);
+
+        setFinalMessage("Saving to database...");
+        console.log("Step 3: Saving to database...");
+
+        // Add the file URL to the processed data
+        processedData.file_url = blobUrl;
+
+        // Call Server Action directly
+        const saveData = await saveToDB(processedData);
+        console.log("Save successful:", saveData);
+
+        setFinalMessage("✓ Successfully saved!");
+
+        setTimeout(() => {
+          setFile(null);
+          setAudioURL(null);
+          setFinalMessage("");
+        }, 2000);
+
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          throw new Error("Processing timed out. The ML server might be busy or down.");
+        }
+        throw err;
       }
 
-      const processedData = await processRes.json();
-      console.log("Processed data:", processedData);
-
-      setFinalMessage("Saving to database...");
-      console.log("Step 3: Saving to database...");
-
-      // Add the file URL to the processed data
-      processedData.file_url = blobUrl;
-
-      const saveRes = await fetch("/api/save-recordings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(processedData)
-      });
-
-      if (!saveRes.ok) {
-        const errorText = await saveRes.text();
-        console.error("Save error:", errorText);
-        throw new Error("Failed to save to database");
-      }
-
-      const saveData = await saveRes.json();
-      console.log("Save successful:", saveData);
-
-      setFinalMessage("✓ Successfully saved!");
-
-      setTimeout(() => {
-        setFile(null);
-        setAudioURL(null);
-        setFinalMessage("");
-      }, 2000);
 
     } catch (err) {
       console.error("Send error:", err);
