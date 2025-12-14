@@ -1,4 +1,4 @@
-# BhashaSuraksha 🛡️🗣️
+# BhashaSuraksha 
 
 > **Preserving India's Linguistic Heritage through AI**
 
@@ -7,18 +7,18 @@ BhashaSuraksha is an open-source platform designed to document, preserve, and an
 ![Project Status](https://img.shields.io/badge/Status-Active-success)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
-## 🚀 Features
+## Features
 
-- **🎙️ Audio Collection**: Secure upload and recording interface for gathering speech samples from diverse regions.
-- **🤖 AI-Powered Analysis**:
+- **Audio Collection**: Secure upload and recording interface for gathering speech samples from diverse regions.
+- **AI-Powered Analysis**:
   - **Transcription**: Automatic speech-to-text using **OpenAI Whisper**.
   - **Dialect Identification**: Acoustic embedding extraction using **wav2vec2**.
   - **Semantic Analysis**: Keyword extraction and cultural context analysis using **Google Gemini AI**.
-- **🔍 Unsupervised Clustering**: Automatically groups unknown or undocumented dialects using **DBSCAN** and **Cosine Similarity** on acoustic embeddings.
-- **🗺️ Geospatial Heatmap**: Interactive visualization of language distribution and dialect clusters using **MapLibre**.
-- **☁️ Scalable Architecture**: Built on **Azure Blob Storage** and **PostgreSQL** for robust data handling.
+- **Unsupervised Clustering**: Automatically groups unknown or undocumented dialects using **DBSCAN** and **Cosine Similarity** on acoustic embeddings.
+- **Geospatial Heatmap**: Interactive visualization of language distribution and dialect clusters using **MapLibre**.
+- **Scalable Architecture**: Built on **Azure Blob Storage** and **PostgreSQL** for robust data handling.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
 
@@ -43,14 +43,14 @@ BhashaSuraksha is an open-source platform designed to document, preserve, and an
 - **AI Services**: Google Gemini API
 - **Containerization**: Docker
 
-## 🏗️ Architecture
+## Architecture
 
 The system consists of two main microservices:
 
 1. **Frontend (Next.js)**: Handles user interaction, audio recording, and visualization. It communicates directly with Azure for uploads and the ML service for processing.
 2. **ML Service (FastAPI)**: Processes audio files to extract transcripts and embeddings, performs clustering, and manages the vector database.
 
-## 🏁 Getting Started
+##  Getting Started
 
 ### Prerequisites
 
@@ -97,7 +97,7 @@ The system consists of two main microservices:
    uvicorn app.main:app --reload --port 8000
    ```
 
-## 🧪 Environment Variables
+##  Environment Variables
 
 ### Frontend (.env)
 
@@ -114,10 +114,10 @@ DATABASE_URL="postgresql://..."
 AZURE_STORAGE_CONNECTION_STRING="..."
 ```
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License.
