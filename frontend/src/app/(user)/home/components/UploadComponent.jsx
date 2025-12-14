@@ -18,28 +18,22 @@ const COLORS = {
   textDim: "#737373",
 };
 
-// ============================================================================
-// DIRECT AZURE UPLOAD HELPER
-// ============================================================================
 const uploadToAzure = async (file, fileName) => {
-  // Get SAS token from our lightweight API
-  const sasRes = await fetch(`/api/get-sas-token?fileName=${encodeURIComponent(fileName)}`);
+  const sasRes = await fetch(
+    `/api/get-sas-token?fileName=${encodeURIComponent(fileName)}`
+  );
   if (!sasRes.ok) throw new Error("Failed to get upload token");
 
   const { sasUrl, blobUrl } = await sasRes.json();
 
-  // Upload directly to Azure from browser
   const blockBlobClient = new BlockBlobClient(sasUrl);
   await blockBlobClient.uploadData(file, {
-    blobHTTPHeaders: { blobContentType: file.type || AUDIO_MIME_TYPE }
+    blobHTTPHeaders: { blobContentType: file.type || AUDIO_MIME_TYPE },
   });
 
   return blobUrl;
 };
 
-// ============================================================================
-// CUSTOM HOOKS
-// ============================================================================
 const useAudioRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState(null);
@@ -52,7 +46,6 @@ const useAudioRecorder = () => {
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
 
-  // Get user location on mount with high accuracy
   React.useEffect(() => {
     console.log("[AudioRecorder] Requesting high-accuracy location...");
     if (navigator.geolocation) {
@@ -60,22 +53,28 @@ const useAudioRecorder = () => {
         (position) => {
           const coords = {
             lat: position.coords.latitude,
-            lng: position.coords.longitude
+            lng: position.coords.longitude,
           };
           setLocation(coords);
           setLocationReady(true);
           console.log("[AudioRecorder] Location SUCCESS:", coords);
-          console.log(`[AudioRecorder] Accuracy: ±${position.coords.accuracy}m`);
+          console.log(
+            `[AudioRecorder] Accuracy: ±${position.coords.accuracy}m`
+          );
         },
         (error) => {
-          console.error("[AudioRecorder] Location ERROR:", error.message, error.code);
+          console.error(
+            "[AudioRecorder] Location ERROR:",
+            error.message,
+            error.code
+          );
           console.warn("[AudioRecorder] Defaulting to (0, 0)");
           setLocationReady(true);
         },
         {
           enableHighAccuracy: true,
           timeout: 10000,
-          maximumAge: 0
+          maximumAge: 0,
         }
       );
     } else {
@@ -100,7 +99,7 @@ const useAudioRecorder = () => {
         const blob = new Blob(chunksRef.current, { type: AUDIO_MIME_TYPE });
         setAudioBlob(blob);
         setAudioURL(URL.createObjectURL(blob));
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach((track) => track.stop());
       };
 
       mediaRecorder.start();
@@ -112,7 +111,10 @@ const useAudioRecorder = () => {
   }, []);
 
   const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state !== "inactive"
+    ) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
     }
@@ -126,7 +128,6 @@ const useAudioRecorder = () => {
       setFinalMessage("Uploading directly to Azure...");
       console.log("Step 1: Direct upload to Azure Blob Storage...");
 
-      // DIRECT UPLOAD - NO NEXTJS ROUTE!
       const blobUrl = await uploadToAzure(audioBlob, RECORDED_FILENAME);
       console.log("Blob URL:", blobUrl);
 
@@ -143,8 +144,12 @@ const useAudioRecorder = () => {
         const processRes = await fetch(PROCESS_API_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ file_url: blobUrl, lat: location.lat, lng: location.lng }),
-          signal: controller.signal
+          body: JSON.stringify({
+            file_url: blobUrl,
+            lat: location.lat,
+            lng: location.lng,
+          }),
+          signal: controller.signal,
         });
         clearTimeout(timeoutId);
 
@@ -160,10 +165,8 @@ const useAudioRecorder = () => {
         setFinalMessage("Saving to database...");
         console.log("Step 3: Saving to database...");
 
-        // Add the file URL to the processed data
         processedData.file_url = blobUrl;
 
-        // Call Server Action directly
         const saveData = await saveToDB(processedData);
         console.log("Save successful:", saveData);
 
@@ -174,14 +177,14 @@ const useAudioRecorder = () => {
           setAudioURL(null);
           setFinalMessage("");
         }, 2000);
-
       } catch (err) {
-        if (err.name === 'AbortError') {
-          throw new Error("Processing timed out. The ML server might be busy or down.");
+        if (err.name === "AbortError") {
+          throw new Error(
+            "Processing timed out. The ML server might be busy or down."
+          );
         }
         throw err;
       }
-
     } catch (err) {
       console.error("Send error:", err);
       setFinalMessage("✗ Failed: " + err.message);
@@ -207,7 +210,7 @@ const useAudioRecorder = () => {
     startRecording,
     stopRecording,
     handleSend,
-    clearRecording
+    clearRecording,
   };
 };
 
@@ -220,7 +223,6 @@ const useFileUpload = () => {
   const [location, setLocation] = useState({ lat: 0, lng: 0 });
   const [locationReady, setLocationReady] = useState(false);
 
-  // Get user location on mount with high accuracy
   React.useEffect(() => {
     console.log("[FileUpload] Requesting high-accuracy location...");
     if (navigator.geolocation) {
@@ -228,7 +230,7 @@ const useFileUpload = () => {
         (position) => {
           const coords = {
             lat: position.coords.latitude,
-            lng: position.coords.longitude
+            lng: position.coords.longitude,
           };
           setLocation(coords);
           setLocationReady(true);
@@ -236,14 +238,18 @@ const useFileUpload = () => {
           console.log(`[FileUpload] Accuracy: ±${position.coords.accuracy}m`);
         },
         (error) => {
-          console.error("[FileUpload] Location ERROR:", error.message, error.code);
+          console.error(
+            "[FileUpload] Location ERROR:",
+            error.message,
+            error.code
+          );
           console.warn("[FileUpload] Defaulting to (0, 0)");
           setLocationReady(true);
         },
         {
           enableHighAccuracy: true,
           timeout: 10000,
-          maximumAge: 0
+          maximumAge: 0,
         }
       );
     } else {
@@ -276,7 +282,6 @@ const useFileUpload = () => {
       setFinalMessage("Uploading directly to Azure...");
       console.log("Step 1: Direct upload to Azure Blob Storage...");
 
-      // DIRECT UPLOAD - NO NEXTJS ROUTE!
       const blobUrl = await uploadToAzure(file, file.name);
       console.log("Blob URL:", blobUrl);
 
@@ -285,7 +290,6 @@ const useFileUpload = () => {
       setFinalMessage("Processing audio...");
       console.log("Step 2: Processing audio via ML API...");
 
-      // Add timeout for ML processing (60 seconds)
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 60000);
 
@@ -293,8 +297,12 @@ const useFileUpload = () => {
         const processRes = await fetch(PROCESS_API_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ file_url: blobUrl, lat: location.lat, lng: location.lng }),
-          signal: controller.signal
+          body: JSON.stringify({
+            file_url: blobUrl,
+            lat: location.lat,
+            lng: location.lng,
+          }),
+          signal: controller.signal,
         });
         clearTimeout(timeoutId);
 
@@ -310,10 +318,8 @@ const useFileUpload = () => {
         setFinalMessage("Saving to database...");
         console.log("Step 3: Saving to database...");
 
-        // Add the file URL to the processed data
         processedData.file_url = blobUrl;
 
-        // Call Server Action directly
         const saveData = await saveToDB(processedData);
         console.log("Save successful:", saveData);
 
@@ -324,15 +330,14 @@ const useFileUpload = () => {
           setAudioURL(null);
           setFinalMessage("");
         }, 2000);
-
       } catch (err) {
-        if (err.name === 'AbortError') {
-          throw new Error("Processing timed out. The ML server might be busy or down.");
+        if (err.name === "AbortError") {
+          throw new Error(
+            "Processing timed out. The ML server might be busy or down."
+          );
         }
         throw err;
       }
-
-
     } catch (err) {
       console.error("Send error:", err);
       setFinalMessage("✗ Failed: " + err.message);
@@ -357,27 +362,30 @@ const useFileUpload = () => {
     finalMessage,
     handleFileChange,
     handleSend,
-    clearFile
+    clearFile,
   };
 };
 
-// ============================================================================
-// SUB-COMPONENTS (Keep all your existing UI components exactly as they are)
-// ============================================================================
 const ModeSelector = ({ activeMode, onModeChange }) => (
   <div className="relative border border-neutral-800 p-1.5 flex gap-2">
     <button
       onClick={() => onModeChange("upload")}
-      className={`relative px-8 py-4 font-bold tracking-widest uppercase text-sm flex items-center gap-3 transition-colors ${activeMode === "upload" ? "bg-yellow-500 text-black" : "text-neutral-400 hover:text-yellow-400"
-        }`}
+      className={`relative px-8 py-4 font-bold tracking-widest uppercase text-sm flex items-center gap-3 transition-colors ${
+        activeMode === "upload"
+          ? "bg-yellow-500 text-black"
+          : "text-neutral-400 hover:text-yellow-400"
+      }`}
     >
       <Upload size={20} />
       Upload
     </button>
     <button
       onClick={() => onModeChange("record")}
-      className={`relative px-8 py-4 font-bold tracking-widest uppercase text-sm flex items-center gap-3 transition-colors ${activeMode === "record" ? "bg-yellow-500 text-black" : "text-neutral-400 hover:text-yellow-400"
-        }`}
+      className={`relative px-8 py-4 font-bold tracking-widest uppercase text-sm flex items-center gap-3 transition-colors ${
+        activeMode === "record"
+          ? "bg-yellow-500 text-black"
+          : "text-neutral-400 hover:text-yellow-400"
+      }`}
     >
       <Mic size={20} />
       Record
@@ -393,7 +401,7 @@ const UploadInterface = ({
   finalMessage,
   onFileChange,
   onSend,
-  onClear
+  onClear,
 }) => {
   return (
     <motion.div
@@ -408,14 +416,19 @@ const UploadInterface = ({
           <Upload size={64} className="text-yellow-400" />
         </div>
         <div className="text-center space-y-3">
-          <h3 className="text-2xl font-bold text-white tracking-tight">Upload Audio File</h3>
+          <h3 className="text-2xl font-bold text-white tracking-tight">
+            Upload Audio File
+          </h3>
           <p className="text-neutral-400 font-mono text-sm tracking-wide">
             SELECT YOUR AUDIO RECORDING
           </p>
         </div>
 
         {!file ? (
-          <label htmlFor="audioUpload" className="block w-full cursor-pointer group">
+          <label
+            htmlFor="audioUpload"
+            className="block w-full cursor-pointer group"
+          >
             <input
               id="audioUpload"
               type="file"
@@ -425,8 +438,12 @@ const UploadInterface = ({
             />
             <div className="border-2 border-dashed border-neutral-700 hover:border-yellow-500/50 transition-colors duration-300 p-12 text-center bg-black group-hover:bg-neutral-900/30">
               <div className="space-y-2">
-                <div className="text-neutral-400 font-mono text-sm">CLICK TO BROWSE</div>
-                <div className="text-neutral-600 text-xs">Supported: MP3, WAV, WEBM</div>
+                <div className="text-neutral-400 font-mono text-sm">
+                  CLICK TO BROWSE
+                </div>
+                <div className="text-neutral-600 text-xs">
+                  Supported: MP3, WAV, WEBM
+                </div>
               </div>
             </div>
           </label>
@@ -452,7 +469,9 @@ const UploadInterface = ({
               </div>
               <div className="space-y-2">
                 <div className="text-white font-bold">{file.name}</div>
-                <div className="text-neutral-500 text-xs">{(file.size / (1024 * 1024)).toFixed(2)} MB</div>
+                <div className="text-neutral-500 text-xs">
+                  {(file.size / (1024 * 1024)).toFixed(2)} MB
+                </div>
               </div>
               {audioURL && <audio controls src={audioURL} className="w-full" />}
             </motion.div>
@@ -462,10 +481,11 @@ const UploadInterface = ({
               whileTap={{ scale: uploading || processing ? 1 : 0.98 }}
               onClick={onSend}
               disabled={uploading || processing}
-              className={`w-full py-4 font-bold tracking-widest uppercase text-sm flex items-center justify-center gap-3 transition-colors ${uploading || processing
-                ? "bg-neutral-800 text-neutral-600 cursor-not-allowed"
-                : "bg-yellow-500 text-black hover:bg-yellow-400"
-                }`}
+              className={`w-full py-4 font-bold tracking-widest uppercase text-sm flex items-center justify-center gap-3 transition-colors ${
+                uploading || processing
+                  ? "bg-neutral-800 text-neutral-600 cursor-not-allowed"
+                  : "bg-yellow-500 text-black hover:bg-yellow-400"
+              }`}
             >
               {uploading || processing ? (
                 <>
@@ -484,9 +504,13 @@ const UploadInterface = ({
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className={`text-center font-mono text-sm ${finalMessage.includes("✓") ? "text-green-400" :
-                  finalMessage.includes("✗") ? "text-red-400" : "text-yellow-400"
-                  }`}
+                className={`text-center font-mono text-sm ${
+                  finalMessage.includes("✓")
+                    ? "text-green-400"
+                    : finalMessage.includes("✗")
+                    ? "text-red-400"
+                    : "text-yellow-400"
+                }`}
               >
                 {finalMessage}
               </motion.div>
@@ -508,7 +532,7 @@ const RecordInterface = ({
   onStartRecording,
   onStopRecording,
   onSend,
-  onClear
+  onClear,
 }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
@@ -529,9 +553,15 @@ const RecordInterface = ({
         )}
       </div>
       <div className="text-center space-y-3">
-        <h3 className="text-2xl font-bold text-white tracking-tight">Voice Recording</h3>
+        <h3 className="text-2xl font-bold text-white tracking-tight">
+          Voice Recording
+        </h3>
         <p className="text-neutral-400 font-mono text-sm tracking-wide">
-          {isRecording ? "RECORDING IN PROGRESS..." : audioBlob ? "RECORDING COMPLETE" : "READY TO RECORD"}
+          {isRecording
+            ? "RECORDING IN PROGRESS..."
+            : audioBlob
+            ? "RECORDING COMPLETE"
+            : "READY TO RECORD"}
         </p>
       </div>
       <div className="w-full space-y-6">
@@ -552,7 +582,8 @@ const RecordInterface = ({
               onClick={onStopRecording}
               className="w-full bg-red-500 text-white py-4 font-bold tracking-widest uppercase text-sm hover:bg-red-600 transition-colors flex items-center justify-center gap-3"
             >
-              <div className="w-3 h-3 bg-white rounded-full animate-pulse" /> Stop Recording
+              <div className="w-3 h-3 bg-white rounded-full animate-pulse" />{" "}
+              Stop Recording
             </motion.button>
           )
         ) : (
@@ -583,10 +614,11 @@ const RecordInterface = ({
               whileTap={{ scale: uploading || processing ? 1 : 0.98 }}
               onClick={onSend}
               disabled={uploading || processing}
-              className={`w-full py-4 font-bold tracking-widest uppercase text-sm flex items-center justify-center gap-3 transition-colors ${uploading || processing
-                ? "bg-neutral-800 text-neutral-600 cursor-not-allowed"
-                : "bg-yellow-500 text-black hover:bg-yellow-400"
-                }`}
+              className={`w-full py-4 font-bold tracking-widest uppercase text-sm flex items-center justify-center gap-3 transition-colors ${
+                uploading || processing
+                  ? "bg-neutral-800 text-neutral-600 cursor-not-allowed"
+                  : "bg-yellow-500 text-black hover:bg-yellow-400"
+              }`}
             >
               {uploading || processing ? (
                 <>
@@ -605,9 +637,13 @@ const RecordInterface = ({
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className={`text-center font-mono text-sm ${finalMessage.includes("✓") ? "text-green-400" :
-                  finalMessage.includes("✗") ? "text-red-400" : "text-yellow-400"
-                  }`}
+                className={`text-center font-mono text-sm ${
+                  finalMessage.includes("✓")
+                    ? "text-green-400"
+                    : finalMessage.includes("✗")
+                    ? "text-red-400"
+                    : "text-yellow-400"
+                }`}
               >
                 {finalMessage}
               </motion.div>
@@ -623,9 +659,6 @@ const RecordInterface = ({
   </motion.div>
 );
 
-// ============================================================================
-// MAIN COMPONENT
-// ============================================================================
 export function UploadComponent() {
   const [activeMode, setActiveMode] = useState("upload");
 
@@ -665,7 +698,8 @@ export function UploadComponent() {
             Contribute Your Voice
           </h1>
           <p className="text-neutral-400 font-mono text-sm tracking-wide max-w-2xl">
-            Help preserve India&apos;s linguistic heritage by uploading or recording audio samples
+            Help preserve India&apos;s linguistic heritage by uploading or
+            recording audio samples
           </p>
         </motion.div>
         <motion.div

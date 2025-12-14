@@ -31,22 +31,18 @@ def cluster_embedding_with_db(
         - cluster_id: Assigned cluster ID (None if no similar cluster found)
         - max_similarity: Maximum similarity score with existing embeddings
     """
-    # Ensure embedding is 2D for similarity computation
     embedding = np.array(embedding).reshape(1, -1)
     
-    # If no embeddings in database, return None (will create new cluster)
     if len(db_embeddings) == 0:
         logger.info("No embeddings in database. Will create new cluster.")
         return None, 0.0
     
     if use_dbscan:
-        # Original DBSCAN approach
         X = np.vstack([db_embeddings, embedding])
         clusterer = DBSCAN(eps=eps, min_samples=1).fit(X)
         labels = clusterer.labels_
         assigned_cluster = int(labels[-1])
         
-        # Calculate max similarity for reference
         similarities = cosine_similarity(embedding, db_embeddings)[0]
         max_similarity = float(np.max(similarities))
         
@@ -54,23 +50,18 @@ def cluster_embedding_with_db(
         return assigned_cluster, max_similarity
     
     else:
-        # Similarity-based approach (recommended)
-        # Calculate cosine similarity with all database embeddings
         similarities = cosine_similarity(embedding, db_embeddings)[0]
         
-        # Find the most similar embedding
         max_similarity_idx = np.argmax(similarities)
         max_similarity = float(similarities[max_similarity_idx])
         
         logger.info(f"Max similarity: {max_similarity:.4f} with sample at index {max_similarity_idx}")
         
-        # If similarity exceeds threshold, assign to the same cluster
         if max_similarity >= similarity_threshold:
             assigned_cluster = db_cluster_ids[max_similarity_idx]
             logger.info(f"Assigned to existing cluster {assigned_cluster} (similarity: {max_similarity:.4f})")
             return assigned_cluster, max_similarity
         else:
-            # No similar cluster found - will need to create new cluster
             logger.info(f"No similar cluster found (max similarity: {max_similarity:.4f} < threshold: {similarity_threshold})")
             return None, max_similarity
 
@@ -82,19 +73,14 @@ def cluster_embedding(embedding, history, eps=5):
     
     Note: This is deprecated. Use cluster_embedding_with_db() instead.
     """
-    # Ensure embedding is 2D
     embedding = np.array(embedding).reshape(1, -1)
 
-    # Convert history list → 2D array
     history_arr = np.array(history) if len(history) > 0 else np.empty((0, embedding.shape[1]))
 
-    # Combine history + current embedding
     X = np.vstack([history_arr, embedding])
 
-    # Run DBSCAN
     clusterer = DBSCAN(eps=eps, min_samples=1).fit(X)
     labels = clusterer.labels_
 
-    # Last label corresponds to current embedding
     return int(labels[-1])
 

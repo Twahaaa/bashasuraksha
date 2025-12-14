@@ -153,16 +153,13 @@ def parse_embedding_to_numpy(embedding_json: Any) -> np.ndarray:
         Numpy array of the embedding
     """
     try:
-        # If it's already a list, convert directly
         if isinstance(embedding_json, list):
             return np.array(embedding_json, dtype=np.float32)
         
-        # If it's a dict, it might be a serialized numpy array
         if isinstance(embedding_json, dict):
             if 'data' in embedding_json:
                 return np.array(embedding_json['data'], dtype=np.float32)
         
-        # Fallback: try to convert directly
         return np.array(embedding_json, dtype=np.float32)
     except Exception as e:
         logger.error(f"Error parsing embedding to numpy: {e}")
@@ -188,7 +185,6 @@ def get_embeddings_as_numpy(limit: Optional[int] = None, offset: int = 0) -> tup
     ids = [row['id'] for row in results]
     embeddings = [parse_embedding_to_numpy(row['embedding']) for row in results]
     
-    # Stack all embeddings into a single numpy array
     embeddings_array = np.vstack(embeddings)
     
     logger.info(f"Converted {len(ids)} embeddings to numpy array with shape {embeddings_array.shape}")

@@ -5,10 +5,9 @@ import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-// Generate keywords using Gemini
 async function generateKeywords(transcript, lat, lng) {
   if (!transcript) return "";
-  
+
   const prompt = `
 You are "BhashaGuru", an expert linguist, dialect researcher, 
 and regional language analyst specializing in Indian linguistic zones.
@@ -44,20 +43,19 @@ Transcript: "${transcript}"
   }
 }
 
-// Reverse geocode lat/lng to a readable location string
 async function getLocationString(lat, lng) {
   try {
     const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
     const res = await fetch(url, {
-      headers: { "User-Agent": "BhashaSuraksha/1.0" }
+      headers: { "User-Agent": "BhashaSuraksha/1.0" },
     });
     const data = await res.json();
-    
+
     if (data && data.address) {
       const { city, town, village, state } = data.address;
       const cityName = city || town || village || "";
       const stateName = state || "";
-      
+
       if (cityName && stateName) {
         return `${cityName}, ${stateName}`;
       } else if (stateName) {
@@ -66,8 +64,7 @@ async function getLocationString(lat, lng) {
         return cityName;
       }
     }
-    
-    // Fallback: return coordinates if geocoding fails
+
     return `${lat}, ${lng}`;
   } catch (error) {
     console.error("Reverse geocoding error:", error);
@@ -85,18 +82,16 @@ export async function saveToDB(processedData) {
       embedding,
       lat,
       lng,
-      file_url
+      file_url,
     } = processedData;
 
-    // Generate keywords using Gemini
     const keywords = await generateKeywords(transcript, lat, lng);
-    
-    // Get readable region name from coordinates
+
     const region = await getLocationString(lat, lng);
-    
-    // Format coordinates for the region field (required for MapContainer)
-    const formattedRegion = `${(lat && !isNaN(parseFloat(lat))) ? lat : 0},${(lng && !isNaN(parseFloat(lng))) ? lng : 0}`;
-    
+    const formattedRegion = `${lat && !isNaN(parseFloat(lat)) ? lat : 0},${
+      lng && !isNaN(parseFloat(lng)) ? lng : 0
+    }`;
+
     console.log("Generated keywords:", keywords);
     console.log("Resolved region (coords):", formattedRegion);
     console.log("Readable location (for logging):", region);
@@ -104,18 +99,17 @@ export async function saveToDB(processedData) {
     const CONFIDENCE_THRESHOLD = 0.75;
 
     if (confidence >= CONFIDENCE_THRESHOLD) {
-      // Save as a known sample (high confidence)
       const knownSample = await prisma.knownSample.create({
         data: {
           fileUrl: file_url || "",
           language: language || "unknown",
           confidence: confidence || 0,
           transcript: transcript || null,
-          region: formattedRegion, // Use coordinates
-          lat: (lat && !isNaN(parseFloat(lat))) ? parseFloat(lat) : 0,
-          lng: (lng && !isNaN(parseFloat(lng))) ? parseFloat(lng) : 0,
+          region: formattedRegion,
+          lat: lat && !isNaN(parseFloat(lat)) ? parseFloat(lat) : 0,
+          lng: lng && !isNaN(parseFloat(lng)) ? parseFloat(lng) : 0,
           keywords: keywords,
-        }
+        },
       });
 
       return {
@@ -123,29 +117,25 @@ export async function saveToDB(processedData) {
         type: "known",
         id: knownSample.id,
         language: knownSample.language,
-        region: formattedRegion
+        region: formattedRegion,
       };
     } else {
-      // Save as an unknown sample (low confidence)
-      
-      // Ensure cluster exists if clusterId is provided
       let validClusterId = cluster_id;
       if (cluster_id) {
         const clusterExists = await prisma.cluster.findUnique({
-          where: { id: cluster_id }
+          where: { id: cluster_id },
         });
-        
+
         if (!clusterExists) {
-          // Create the cluster if it doesn't exist
           await prisma.cluster.create({
             data: {
               id: cluster_id,
-              sampleCount: 0
-            }
+              sampleCount: 0,
+            },
           });
         }
       }
-      
+
       const unknownSample = await prisma.unknownSample.create({
         data: {
           fileUrl: file_url || "",
@@ -153,15 +143,14 @@ export async function saveToDB(processedData) {
           confidence: confidence || 0,
           transcript: transcript || null,
           clusterId: validClusterId || null,
-          region: formattedRegion, // Use coordinates
-          lat: (lat && !isNaN(parseFloat(lat))) ? parseFloat(lat) : 0,
-          lng: (lng && !isNaN(parseFloat(lng))) ? parseFloat(lng) : 0,
+          region: formattedRegion,
+          lat: lat && !isNaN(parseFloat(lat)) ? parseFloat(lat) : 0,
+          lng: lng && !isNaN(parseFloat(lng)) ? parseFloat(lng) : 0,
           keywords: keywords,
-          embedding: embedding || []
-        }
+          embedding: embedding || [],
+        },
       });
 
-      // Update cluster sample count if clusterId exists
       if (validClusterId) {
         await prisma.cluster.update({
           where: { id: validClusterId },
@@ -174,7 +163,7 @@ export async function saveToDB(processedData) {
         type: "unknown",
         id: unknownSample.id,
         clusterId: validClusterId,
-        region: formattedRegion
+        region: formattedRegion,
       };
     }
   } catch (error) {

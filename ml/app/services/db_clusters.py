@@ -19,7 +19,6 @@ def create_new_cluster(centroid: Optional[np.ndarray] = None) -> int:
     """
     centroid_json = None
     if centroid is not None:
-        # Convert numpy array to list for JSON storage
         centroid_json = json.dumps(centroid.tolist())
     
     query = """

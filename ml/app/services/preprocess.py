@@ -10,13 +10,11 @@ def preprocess_audio(path: str):
     - sr: sample rate
     """
 
-    # Handle Azure invalid paths / missing file errors
     try:
         audio, sr = librosa.load(path, sr=SAMPLE_RATE, mono=True)
     except Exception as e:
         raise ValueError(f"Failed to load audio from {path}: {e}")
 
-    # Ensure we always return float32 (some models require this)
     audio = np.asarray(audio, dtype=np.float32)
 
     return audio, sr
