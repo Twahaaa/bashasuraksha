@@ -35,16 +35,16 @@ export default function HeatmapPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="py-6 px-6 text-center space-y-3 flex-shrink-0"
+          className="py-6 px-6 text-center space-y-3 shrink-0"
         >
           <div className="flex items-center justify-center gap-3">
-            <span className="h-[1px] w-8 bg-yellow-500 inline-block"></span>
+            <span className="h-px w-8 bg-yellow-500 inline-block"></span>
             <Shield className="w-4 h-4 text-yellow-500" />
             <span className="text-yellow-400 font-mono text-xs tracking-widest uppercase">
               BhashaSuraksha Heatmap
             </span>
             <Shield className="w-4 h-4 text-yellow-500" />
-            <span className="h-[1px] w-8 bg-yellow-500 inline-block"></span>
+            <span className="h-px w-8 bg-yellow-500 inline-block"></span>
           </div>
 
           <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
