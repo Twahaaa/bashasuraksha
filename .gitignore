@@ -8,7 +8,7 @@
 *.log
 *.tmp
 *.swp
-
+package-lock.json
 
 ##############
 #   PYTHON   #
