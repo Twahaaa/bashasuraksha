@@ -5,11 +5,12 @@ import tempfile
 import os
 import shutil
 
+
 def preprocess_audio(file: UploadFile):
     SAMPLE_RATE = 16000
     filename = file.filename or "audio.wav"
-    file_ext = os.path.splittext(filename)[1] 
-
+    file_ext = os.path.splitext(filename)[1] 
+    
     try:
 
         with tempfile.NamedTemporaryFile(suffix=file_ext) as tmp:

@@ -3,6 +3,7 @@ import uvicorn
 import logging
 import librosa
 from services.preprocess_audio import preprocess_audio
+from services.generate_embeddings import extract_embedding
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("encoder-service")
@@ -20,15 +21,15 @@ async def vectorize_audio(file: UploadFile = File(...)):
     
     audio = preprocess_audio(file)
 
+    logger.info("Preprocessed audio successfully")
+
+    embedding = extract_embedding(audio)
+
     logger.info("Generated embedding successfully")
-
-
-    #just dummy data for now, will add the encoder tomorrow
-    vector = [1,2,3,4,5]
 
     return {
         "fileName": file.filename,
-        "embedding": vector
+        "embedding": embedding.tolist()
     }
 
 
