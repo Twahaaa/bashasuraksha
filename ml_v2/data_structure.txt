@@ -1,0 +1,45 @@
+## Data Structures for Frontend <-> ML Backend Communication
+
+### Frontend to ML Backend (`/process` endpoint)
+
+When the frontend sends an audio file for processing, it makes a POST request to the `/process` endpoint of the `ml` backend.
+
+**Request Body:**
+```json
+{
+  "file_url": "https://your-azure-blob-storage-url/audio.webm",
+  "lat": 12.9716,
+  "lng": 77.5946
+}
+```
+
+- `file_url` (string): The URL of the audio file stored in Azure Blob Storage.
+- `lat` (number): The latitude of the user's location.
+- `lng` (number): The longitude of the user's location.
+
+---
+
+### ML Backend to Frontend
+
+After processing the audio, the `ml` backend returns a JSON object with the analysis results.
+
+**Response Body:**
+```json
+{
+  "language": "en",
+  "confidence": 0.98,
+  "transcript": "A sample transcription of the audio.",
+  "cluster_id": 12,
+  "embedding": [0.123, 0.456, ...],
+  "lat": 12.9716,
+  "lng": 77.5946
+}
+```
+
+- `language` (string): The detected language code (e.g., "en", "hi").
+- `confidence` (float): A score from 0.0 to 1.0 indicating the model's confidence in the language detection.
+- `transcript` (string): The text transcribed from the audio.
+- `cluster_id` (integer | null): The ID of the cluster the audio is assigned to if it's an unknown dialect. It is `null` for known languages.
+- `embedding` (array of floats): The vector representation of the audio.
+- `lat` (number): The latitude passed in the original request.
+- `lng` (number): The longitude passed in the original request.

@@ -2,11 +2,10 @@
 import requests
 import os
 from utils.logger import get_logger
+from utils.env import ENCODER_URL
 
 logger = get_logger(__name__)
-
-ENCODER_URL = "http://localhost:8001"  
-
+  
 def get_audio_embedding(file_path: str):
     """
     Sends an audio file to the Encoder service and returns the vector.
