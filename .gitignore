@@ -169,3 +169,7 @@ ml/tests/sample_audio/
 pytest_cache/
 .coverage
 htmlcov/
+
+audios/
+
+models/

@@ -1,17 +1,14 @@
 # orchestrator/test_driver.py
 import sys
+import os
 # Fix python path to find 'services'
 sys.path.append(".") 
 
 from services.remote_encoder import get_audio_embedding
 
-# Make a dummy file to test
-with open("test_audio.txt", "w") as f:
-    f.write("This is fake audio data")
-
 try:
     print("Attempting to talk to Encoder...")
-    vector = get_audio_embedding("test_audio.txt")
+    vector = get_audio_embedding("../audios/English.m4a")
     print("\nSUCCESS! Received Vector:")
     print(vector)
 except Exception as e:
