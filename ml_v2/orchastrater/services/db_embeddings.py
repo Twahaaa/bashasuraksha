@@ -1,6 +1,5 @@
 import json
 from utils.db import excecute_query
-from utils.db import get_db_connection
 from utils.logger import get_logger
 
 logger = get_logger("db_embeddings")
