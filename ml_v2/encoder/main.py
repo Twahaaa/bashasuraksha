@@ -17,14 +17,10 @@ async def vectorize_audio(file: UploadFile = File(...)):
 
     if not file:
         raise HTTPException(status_code=400, detail="file not provided")
-
     
     audio = preprocess_audio(file)
-
     logger.info("Preprocessed audio successfully")
-
     embedding = extract_embedding(audio)
-
     logger.info("Generated embedding successfully")
 
     return {
