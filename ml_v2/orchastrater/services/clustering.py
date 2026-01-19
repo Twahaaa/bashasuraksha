@@ -6,7 +6,6 @@ from utils.logger import get_logger
 
 logger = get_logger("clustering")
 
-
 # 0.0 = Identical and 1.0 = Completely Opposite
 SIMILARITY_THRESHOLD = 0.2
 
@@ -23,7 +22,6 @@ def find_best_cluster(new_embedding: list, existing_clusters: list):
         return (None, None)
     
     centroids = np.array([c['centroid'] for c in existing_clusters])
-    
     user_vector = np.array(new_embedding).reshape(1,-1)
     
     """
@@ -57,9 +55,7 @@ def calculate_new_centroid(current_centroid: list, current_count: int, new_embed
         New = ((Old * Count) + New_sample) / Count+1
     """    
     old_vec = np.array(current_centroid)
-    
     new_vec = np.array(new_embedding)
-    
     udpated_vec = ((old_vec * current_count) + new_vec) / (current_count + 1)
     
     return updated_vec.tolist()

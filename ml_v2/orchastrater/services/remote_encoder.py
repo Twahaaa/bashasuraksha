@@ -21,11 +21,9 @@ def get_audio_embedding(file_path: str):
     try:
         with open(file_path,"rb") as f:
             files = {"file": f}
-
             response = requests.post(url, files=files)
 
         response.raise_for_status()
-
         data = response.json()
 
         return data["embedding"]
