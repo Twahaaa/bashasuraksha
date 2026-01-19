@@ -19,7 +19,7 @@ def create_unknown_sample(
     """To insert into the unknown samples table"""
     
     query = """
-        INSERT INTO "UknownSample"(
+        INSERT INTO "UnknownSample"(
             "fileUrl",
             "languageGuess",
             "confidence",
@@ -46,7 +46,7 @@ def create_unknown_sample(
         lat,
         lng,
         keywords,
-        embedding,
+        embedding_json,
         cluster_id,
     )
     

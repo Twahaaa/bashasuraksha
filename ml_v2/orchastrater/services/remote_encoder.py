@@ -1,12 +1,12 @@
-# orchestrator/services/remote_encoder.py
+import httpx
 import requests
 import os
 from utils.logger import get_logger
 from utils.env import ENCODER_URL
 
 logger = get_logger(__name__)
-  
-def get_audio_embedding(file_path: str):
+
+async def get_audio_embedding(file_path: str):
     """
     Sends an audio file to the Encoder service and returns the vector.
     """
@@ -19,9 +19,10 @@ def get_audio_embedding(file_path: str):
     logger.info(f"Sending {file_path} to Encoder service at {url}...")
 
     try:
-        with open(file_path,"rb") as f:
-            files = {"file": f}
-            response = requests.post(url, files=files)
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            with open(file_path,"rb") as f:
+                files = {"file": f}
+                response = await client.post(url, files=files)
 
         response.raise_for_status()
         data = response.json()

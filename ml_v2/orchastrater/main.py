@@ -1,9 +1,12 @@
+from fileinput import filename
 import os
 import shutil
 import tempfile
 from typing import final
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
+
 
 from utils.logger import get_logger
 
@@ -12,40 +15,41 @@ from services import remote_encoder
 from services import db_embeddings
 from services import db_clusters
 from services import clustering
+from services import supabase
 
-def main():
-    app = FastAPI(title="BhashaSuraksha Orchastrator")
-    logger = get_logger("main")
-    
-    app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # In production, change this to your Frontend URL
-    allow_credentials=True,
-    allow_methods=["*"],    
-    allow_headers=["*"],
+app = FastAPI(title="BhashaSuraksha Orchastrator")
+logger = get_logger("main")
+
+
+app.add_middleware(
+CORSMiddleware,
+allow_origins=["*"],  # In production, change this to your Frontend URL
+allow_credentials=True,
+allow_methods=["*"],    
+allow_headers=["*"],
 )
 
 @app.get("/")
 def health_check():
     return {"status" : "healthy", "service": "orchastrator"}
 
-app.post("/process-audio")
+@app.post("/process-audio")
 async def process_audio(
     file: UploadFile = File(...),
-    region:str = Form("Uknown"),
+    region:str = Form("Unknown"),
     lat:float = Form(None),
     lng:float = Form(None)
 ):
-    temp_path = None
+    tmp_path = None
     try:
-        logger.info(f"Recieved requesti:{file.filename} from region:{region}")
+        logger.info(f"Recieved request:{file.filename} from region:{region}")
         
-        #save file to a temp path
+        filename = file.filename or "audio.wav"
         file_ext = os.path.splitext(filename)[1] or ".wav"
         with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as tmp:
             shutil.copyfileobj(file.file,tmp)
             tmp_path = tmp.name
-            logger.info(f"saved temp file into {temp_path}")
+            logger.info(f"saved temp file into {tmp_path}")
         
         #whisper
         transcription = whisper_utils.transcribe_audio(tmp_path)
@@ -55,7 +59,7 @@ async def process_audio(
         logger.info(f"Whisper results: transcription:{transcript_text} with language:{detected_language} with confidence:{confidence}")
         
         #encoder
-        embedding = await remote_encoder.get_audio_embedding(temp_path)
+        embedding = await remote_encoder.get_audio_embedding(tmp_path)
         
         if not embedding:
             raise HTTPException(status_code=500,detail="Failed to generate embedding")
@@ -65,7 +69,7 @@ async def process_audio(
         best_cluster_id, distance = clustering.find_best_cluster(embedding,existing_clusters)
         final_cluster_id = None
         
-        if best_cluster_id:
+        if best_cluster_id is not None:
             logger.info(f"Joining Cluster {best_cluster_id} (Distance:{distance:.4f})")
             final_cluster_id = best_cluster_id
             
@@ -87,8 +91,10 @@ async def process_audio(
             logger.info("No matching cluster found, Creating new Cluster")
             final_cluster_id = db_clusters.create_new_cluster(embedding)
             
+        public_url = supabase.upload_audio_file(tmp_path,filename)
+            
         sample_id = db_embeddings.create_unknown_sample(
-            file_url=temp_path,
+            file_url=public_url,
             language_guess=detected_language,
             confidence=confidence,
             transcript=transcript_text,
@@ -106,20 +112,26 @@ async def process_audio(
             "transcript": transcript_text,
             "detected_language":detected_language,
             "assigned_cluster_id": final_cluster_id,
-            "is_new_cluster": (final_cluster_id != best_cluster_id) if best_cluster_id else True,
-            "file_url": temp_path
-            
+            "is_new_cluster": (final_cluster_id != best_cluster_id) if best_cluster_id is not None else True,
+            "file_url": public_url
         }
     
     except Exception as e:
         logger.error(f"Processing failed: {e}")
-        raise HTTPException(status_code=500,details=str(e))
+        raise HTTPException(status_code=500,detail=str(e))
     
     finally:
-        if temp_path and os.path.exists(temp_path):
-            os.remove(temp_path)
+        if tmp_path and os.path.exists(tmp_path):
+            os.remove(tmp_path)
             logger.info("cleaned temp path")
         
+def main():
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True
+    )
 
 if __name__ == "__main__":
     main()

@@ -5,7 +5,7 @@ from utils.logger import get_logger
 logger = get_logger("db_clusters")
 
 def get_all_clusters():
-    query = 'SELECT id, centroid, sampleCount FROM "Cluster";'
+    query = 'SELECT "id", "centroid", "sampleCount" FROM "Cluster";'
     
     return excecute_query(query, fetch_all=True)
 
@@ -31,7 +31,7 @@ def update_cluster_centroid(cluster_id: int, new_centroid: list, new_count: int)
     """
     
     centroid_json = json.dumps(new_centroid)
-    result = excecute_query(query, (centroid_json, new_count, cluster_id))
+    excecute_query(query, (centroid_json, new_count, cluster_id))
     
     logger.info(f"Updated cluster: {cluster_id} centroid with the new count: {new_count}")
     

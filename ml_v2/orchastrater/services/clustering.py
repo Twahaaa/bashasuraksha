@@ -1,5 +1,3 @@
-from math import dist
-from turtle import update
 import numpy as np
 from sklearn.metrics.pairwise import cosine_distances
 from utils.logger import get_logger
@@ -43,7 +41,7 @@ def find_best_cluster(new_embedding: list, existing_clusters: list):
     logger.info(f"Closest cluster: ID {best_cluster['id']} and Distance {min_dist:.4f}") 
     
     if min_dist < SIMILARITY_THRESHOLD:
-        return best_cluster['id'], flaot(min_dist)
+        return best_cluster['id'], float(min_dist)
     else:
         logger.info(f"No match found. CLosest was {min_dist:.4f} > {SIMILARITY_THRESHOLD}")
         return None, float(min_dist)
@@ -56,7 +54,7 @@ def calculate_new_centroid(current_centroid: list, current_count: int, new_embed
     """    
     old_vec = np.array(current_centroid)
     new_vec = np.array(new_embedding)
-    udpated_vec = ((old_vec * current_count) + new_vec) / (current_count + 1)
+    updated_vec = ((old_vec * current_count) + new_vec) / (current_count + 1)
     
     return updated_vec.tolist()
     
